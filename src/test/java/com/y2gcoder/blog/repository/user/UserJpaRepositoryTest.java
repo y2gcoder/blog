@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
@@ -46,7 +47,7 @@ class UserJpaRepositoryTest {
 		userJpaRepository.save(createDefaultUser());
 		//when
 		//then
-		assertThrows(DataIntegrityViolationException.class, () -> userJpaRepository.save(createDefaultUser()));
+		assertThatThrownBy(() -> userJpaRepository.save(createDefaultUser())).isInstanceOf(DataIntegrityViolationException.class);
 	}
 
 	@Test

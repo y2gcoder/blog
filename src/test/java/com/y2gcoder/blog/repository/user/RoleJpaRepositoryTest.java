@@ -3,7 +3,6 @@ package com.y2gcoder.blog.repository.user;
 import com.y2gcoder.blog.entity.user.Role;
 import com.y2gcoder.blog.entity.user.RoleType;
 import com.y2gcoder.blog.exception.RoleNotFoundException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 class RoleJpaRepositoryTest {
@@ -43,7 +42,7 @@ class RoleJpaRepositoryTest {
 
 		//when
 		//then
-		assertThrows(DataIntegrityViolationException.class, () -> roleJpaRepository.save(createTestRole()));
+		assertThatThrownBy(() -> roleJpaRepository.save(createTestRole())).isInstanceOf(DataIntegrityViolationException.class);
 	}
 
 	private Role createTestRole() {
