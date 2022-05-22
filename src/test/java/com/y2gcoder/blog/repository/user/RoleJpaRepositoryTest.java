@@ -12,6 +12,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import static com.y2gcoder.blog.factory.entity.RoleFactory.createRole;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -24,7 +25,7 @@ class RoleJpaRepositoryTest {
 	@DisplayName("Role:저장 성공")
 	void saveRole_Normal_Success() {  //메서드명_상태_기댓값
 		//given
-		Role role = createTestRole();
+		Role role = createRole();
 
 		//when
 		roleJpaRepository.save(role);
@@ -38,15 +39,11 @@ class RoleJpaRepositoryTest {
 	@DisplayName("Role:저장 실패, 중복된 Role")
 	void saveRole_duplicateRole_Fail() {
 		//given
-		roleJpaRepository.save(createTestRole());
+		roleJpaRepository.save(createRole());
 
 		//when
 		//then
-		assertThatThrownBy(() -> roleJpaRepository.save(createTestRole())).isInstanceOf(DataIntegrityViolationException.class);
-	}
-
-	private Role createTestRole() {
-		return new Role(RoleType.ROLE_USER);
+		assertThatThrownBy(() -> roleJpaRepository.save(createRole())).isInstanceOf(DataIntegrityViolationException.class);
 	}
 
 }

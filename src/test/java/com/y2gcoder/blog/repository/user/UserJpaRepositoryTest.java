@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.y2gcoder.blog.factory.entity.UserFactory.createUser;
+import static com.y2gcoder.blog.factory.entity.UserFactory.createUserWithRoles;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +34,7 @@ class UserJpaRepositoryTest {
 	@DisplayName("User:저장 성공")
 	void saveUser_Normal_Success() {
 		//given
-		User user = createDefaultUser();
+		User user = createUser();
 		//when
 		userJpaRepository.save(user);
 		//then
@@ -44,17 +46,17 @@ class UserJpaRepositoryTest {
 	@DisplayName("User:저장 실패, 중복된 email")
 	void saveUser_duplicateEmail_Fail() {
 		//given
-		userJpaRepository.save(createDefaultUser());
+		userJpaRepository.save(createUser());
 		//when
 		//then
-		assertThatThrownBy(() -> userJpaRepository.save(createDefaultUser())).isInstanceOf(DataIntegrityViolationException.class);
+		assertThatThrownBy(() -> userJpaRepository.save(createUser())).isInstanceOf(DataIntegrityViolationException.class);
 	}
 
 	@Test
 	@DisplayName("User:nickname 변경 성공")
 	void changeNickname_Normal_Success() {
 		//given
-		User user = createDefaultUser();
+		User user = createUser();
 		userJpaRepository.save(user);
 		flushAndClear();
 		//when
@@ -71,7 +73,7 @@ class UserJpaRepositoryTest {
 	@DisplayName("User:profile 변경 성공")
 	void changeProfile_Normal_Success() {
 		//given
-		User user = createDefaultUser();
+		User user = createUser();
 		userJpaRepository.save(user);
 		flushAndClear();
 		//when
@@ -112,26 +114,6 @@ class UserJpaRepositoryTest {
 		//then
 		List<UserRole> resultList = em.createQuery("select ur from UserRole ur", UserRole.class).getResultList();
 		assertThat(resultList.size()).isZero();
-	}
-
-	private User createDefaultUser() {
-		return User.builder()
-				.email("email")
-				.password("password")
-				.nickname("nickname")
-				.profile("profile")
-				.roles(Collections.emptyList())
-				.build();
-	}
-
-	private User createUserWithRoles(List<Role> roles) {
-		return User.builder()
-				.email("email")
-				.password("password")
-				.nickname("nickname")
-				.profile("profile")
-				.roles(roles)
-				.build();
 	}
 
 	private void flushAndClear() {
