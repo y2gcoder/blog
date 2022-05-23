@@ -1,5 +1,6 @@
 package com.y2gcoder.blog.config.security;
 
+import com.y2gcoder.blog.config.token.TokenHelper;
 import com.y2gcoder.blog.service.auth.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +17,7 @@ import java.io.IOException;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
-
-	private final JwtService jwtService;
+	private final TokenHelper accessTokenHelper;
 	private final CustomUserDetailService userDetailService;
 
 	@Override
@@ -35,11 +35,11 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 	}
 
 	private boolean validateToken(String token) {
-		return token != null && jwtService.validateAccessToken(token);
+		return token != null && accessTokenHelper.validate(token);
 	}
 
 	private void setAuthentication(String token) {
-		String userId = jwtService.extractAccessTokenSubject(token);
+		String userId = accessTokenHelper.extractSubject(token);
 		CustomUserDetails userDetails = userDetailService.loadUserByUsername(userId);
 		SecurityContextHolder.getContext().setAuthentication(new CustomAuthenticationToken(userDetails, userDetails.getAuthorities()));
 	}

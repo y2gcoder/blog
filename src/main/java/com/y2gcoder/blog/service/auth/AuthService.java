@@ -1,5 +1,6 @@
 package com.y2gcoder.blog.service.auth;
 
+import com.y2gcoder.blog.config.token.TokenHelper;
 import com.y2gcoder.blog.entity.user.RoleType;
 import com.y2gcoder.blog.entity.user.User;
 import com.y2gcoder.blog.exception.*;
@@ -20,7 +21,8 @@ public class AuthService {
 	private final UserJpaRepository userJpaRepository;
 	private final RoleJpaRepository roleJpaRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final JwtService jwtService;
+	private final TokenHelper accessTokenHelper;
+	private final TokenHelper refreshTokenHelper;
 
 	@Transactional
 	public void signUp(SignUpRequest req) {
@@ -35,15 +37,15 @@ public class AuthService {
 		User user = userJpaRepository.findByEmail(req.getEmail()).orElseThrow(LoginFailureException::new);
 		validatePassword(req, user);
 		String subject = createSubject(user);
-		String accessToken = jwtService.createAccessToken(subject);
-		String refreshToken = jwtService.createRefreshToken(subject);
+		String accessToken = accessTokenHelper.createToken(subject);
+		String refreshToken = refreshTokenHelper.createToken(subject);
 		return new SignInResponse(accessToken, refreshToken);
 	}
 
 	public RefreshTokenResponse refreshToken(String refreshToken) {
 		validateRefreshToken(refreshToken);
-		String subject = jwtService.extractRefreshTokenSubject(refreshToken);
-		String accessToken = jwtService.createAccessToken(subject);
+		String subject = refreshTokenHelper.extractSubject(refreshToken);
+		String accessToken = accessTokenHelper.createToken(subject);
 		return new RefreshTokenResponse(accessToken);
 	}
 
@@ -64,7 +66,7 @@ public class AuthService {
 
 
 	private void validateRefreshToken(String refreshToken) {
-		if (!jwtService.validateRefreshToken(refreshToken)) {
+		if (!refreshTokenHelper.validate(refreshToken)) {
 			throw new AuthenticationEntryPointException();
 		}
 	}

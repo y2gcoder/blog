@@ -1,5 +1,6 @@
 package com.y2gcoder.blog.config.security;
 
+import com.y2gcoder.blog.config.token.TokenHelper;
 import com.y2gcoder.blog.service.auth.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-	private final JwtService jwtService;
+	private final TokenHelper accessTokenHelper;
 	private final CustomUserDetailService userDetailService;
 
 
@@ -43,7 +44,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.and()
 				.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 				.and()
-				.addFilterBefore(new JwtAuthenticationFilter(jwtService, userDetailService), UsernamePasswordAuthenticationFilter.class);
+				.addFilterBefore(new JwtAuthenticationFilter(accessTokenHelper, userDetailService), UsernamePasswordAuthenticationFilter.class);
 
 	}
 
