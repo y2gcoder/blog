@@ -34,7 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
 				.authorizeRequests()
-				.antMatchers(HttpMethod.POST, "/auth/sign-up", "/auth/sign-in").permitAll()
+				.antMatchers(HttpMethod.POST, "/auth/sign-up", "/auth/sign-in", "/auth/refresh-token").permitAll()
 				.antMatchers(HttpMethod.GET, "/**").permitAll()
 				.antMatchers(HttpMethod.DELETE, "/users/{id}/**").access("@userGuard.check(#id)")
 				.anyRequest().hasAnyRole("ADMIN")

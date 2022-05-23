@@ -2,12 +2,10 @@ package com.y2gcoder.blog.service.auth;
 
 import com.y2gcoder.blog.entity.user.RoleType;
 import com.y2gcoder.blog.entity.user.User;
-import com.y2gcoder.blog.exception.LoginFailureException;
-import com.y2gcoder.blog.exception.RoleNotFoundException;
-import com.y2gcoder.blog.exception.UserEmailAlreadyExistsException;
-import com.y2gcoder.blog.exception.UserNotFoundException;
+import com.y2gcoder.blog.exception.*;
 import com.y2gcoder.blog.repository.user.RoleJpaRepository;
 import com.y2gcoder.blog.repository.user.UserJpaRepository;
+import com.y2gcoder.blog.service.auth.dto.RefreshTokenResponse;
 import com.y2gcoder.blog.service.auth.dto.SignInRequest;
 import com.y2gcoder.blog.service.auth.dto.SignInResponse;
 import com.y2gcoder.blog.service.auth.dto.SignUpRequest;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 @Service
 public class AuthService {
 	private final UserJpaRepository userJpaRepository;
@@ -33,6 +30,7 @@ public class AuthService {
 				passwordEncoder));
 	}
 
+	@Transactional(readOnly = true)
 	public SignInResponse signIn(SignInRequest req) {
 		User user = userJpaRepository.findByEmail(req.getEmail()).orElseThrow(LoginFailureException::new);
 		validatePassword(req, user);
@@ -40,6 +38,13 @@ public class AuthService {
 		String accessToken = jwtService.createAccessToken(subject);
 		String refreshToken = jwtService.createRefreshToken(subject);
 		return new SignInResponse(accessToken, refreshToken);
+	}
+
+	public RefreshTokenResponse refreshToken(String refreshToken) {
+		validateRefreshToken(refreshToken);
+		String subject = jwtService.extractRefreshTokenSubject(refreshToken);
+		String accessToken = jwtService.createAccessToken(subject);
+		return new RefreshTokenResponse(accessToken);
 	}
 
 	private void validateSignUpInfo(SignUpRequest req) {
@@ -55,5 +60,12 @@ public class AuthService {
 
 	private String createSubject(User user) {
 		return String.valueOf(user.getId());
+	}
+
+
+	private void validateRefreshToken(String refreshToken) {
+		if (!jwtService.validateRefreshToken(refreshToken)) {
+			throw new AuthenticationEntryPointException();
+		}
 	}
 }

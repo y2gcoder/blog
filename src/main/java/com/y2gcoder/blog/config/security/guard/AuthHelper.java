@@ -20,7 +20,6 @@ public class AuthHelper {
 	}
 
 	public Long extractUserId() {
-		log.info("userId={}",getUserDetails().getUserId());
 		return Long.valueOf(getUserDetails().getUserId());
 	}
 
@@ -30,14 +29,6 @@ public class AuthHelper {
 				.map(GrantedAuthority::getAuthority)
 				.map(RoleType::valueOf)
 				.collect(Collectors.toSet());
-	}
-
-	public boolean isAccessTokenType() {
-		return "access".equals(((CustomAuthenticationToken) getAuthentication()).getType());
-	}
-
-	public boolean isRefreshTokenType() {
-		return "refresh".equals(((CustomAuthenticationToken) getAuthentication()).getType());
 	}
 
 	private CustomUserDetails getUserDetails() {

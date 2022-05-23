@@ -3,6 +3,7 @@ package com.y2gcoder.blog.controller.auth;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.y2gcoder.blog.advice.ExceptionAdvice;
+import com.y2gcoder.blog.exception.AuthenticationEntryPointException;
 import com.y2gcoder.blog.exception.LoginFailureException;
 import com.y2gcoder.blog.exception.RoleNotFoundException;
 import com.y2gcoder.blog.exception.UserEmailAlreadyExistsException;
@@ -24,10 +25,12 @@ import static com.y2gcoder.blog.factory.dto.SignInRequestFactory.createSignInReq
 import static com.y2gcoder.blog.factory.dto.SignUpRequestFactory.createSignUpRequest;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -109,5 +112,27 @@ class AuthControllerAdviceTest {
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(req))
 		).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void refreshTokenAuthenticationEntryPointException() throws Exception {
+		//given
+		given(authService.refreshToken(anyString())).willThrow(AuthenticationEntryPointException.class);
+
+		//when, then
+		mockMvc.perform(
+						post("/auth/refresh-token")
+								.header("Authorization", "refreshToken")
+				).andExpect(status().isUnauthorized())
+				.andExpect(jsonPath("$.code").value(-1006));
+	}
+
+	@Test
+	void refreshTokenMissingRequestHeaderException() throws Exception {
+		//given, when, then
+		mockMvc.perform(
+						post("/auth/refresh-token")
+				).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.code").value(-1008));
 	}
 }

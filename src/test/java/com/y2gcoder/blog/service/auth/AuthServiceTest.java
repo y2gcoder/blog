@@ -3,11 +3,13 @@ package com.y2gcoder.blog.service.auth;
 import com.y2gcoder.blog.entity.user.Role;
 import com.y2gcoder.blog.entity.user.RoleType;
 import com.y2gcoder.blog.entity.user.User;
+import com.y2gcoder.blog.exception.AuthenticationEntryPointException;
 import com.y2gcoder.blog.exception.LoginFailureException;
 import com.y2gcoder.blog.exception.RoleNotFoundException;
 import com.y2gcoder.blog.exception.UserEmailAlreadyExistsException;
 import com.y2gcoder.blog.repository.user.RoleJpaRepository;
 import com.y2gcoder.blog.repository.user.UserJpaRepository;
+import com.y2gcoder.blog.service.auth.dto.RefreshTokenResponse;
 import com.y2gcoder.blog.service.auth.dto.SignInRequest;
 import com.y2gcoder.blog.service.auth.dto.SignInResponse;
 import com.y2gcoder.blog.service.auth.dto.SignUpRequest;
@@ -109,6 +111,34 @@ class AuthServiceTest {
 		// when, then
 		assertThatThrownBy(() -> authService.signIn(createSignInRequest("email", "password")))
 				.isInstanceOf(LoginFailureException.class);
+	}
+
+	@Test
+	void refreshTokenTest() {
+		//given
+		String refreshToken = "refreshToken";
+		String subject = "subject";
+		String accessToken = "accessToken";
+		given(jwtService.validateRefreshToken(refreshToken)).willReturn(true);
+		given(jwtService.extractRefreshTokenSubject(refreshToken)).willReturn(subject);
+		given(jwtService.createAccessToken(subject)).willReturn(accessToken);
+
+		//when
+		RefreshTokenResponse response = authService.refreshToken(refreshToken);
+
+		//then
+		assertThat(response.getAccessToken()).isEqualTo(accessToken);
+	}
+
+	@Test
+	void refreshTokenExceptionByInvalidTokenTest() {
+		//given
+		String refreshToken = "refreshToken";
+		given(jwtService.validateRefreshToken(refreshToken)).willReturn(false);
+
+		//when, then
+		assertThatThrownBy(() -> authService.refreshToken(refreshToken))
+				.isInstanceOf(AuthenticationEntryPointException.class);
 	}
 
 }

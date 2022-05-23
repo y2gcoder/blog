@@ -23,10 +23,8 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		String token = extractToken(request);
-		if (validateAccessToken(token)) {
-			setAccessAuthentication("access", token);
-		} else if (validateRefreshToken(token)) {
-			setRefreshAuthentication("refresh", token);
+		if (validateToken(token)) {
+			setAuthentication(token);
 		}
 
 		chain.doFilter(request, response);
@@ -36,23 +34,13 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 		return ((HttpServletRequest) request).getHeader("Authorization");
 	}
 
-	private boolean validateAccessToken(String token) {
+	private boolean validateToken(String token) {
 		return token != null && jwtService.validateAccessToken(token);
 	}
 
-	private boolean validateRefreshToken(String token) {
-		return token != null && jwtService.validateRefreshToken(token);
-	}
-
-	private void setAccessAuthentication(String type, String token) {
+	private void setAuthentication(String token) {
 		String userId = jwtService.extractAccessTokenSubject(token);
 		CustomUserDetails userDetails = userDetailService.loadUserByUsername(userId);
-		SecurityContextHolder.getContext().setAuthentication(new CustomAuthenticationToken(type, userDetails, userDetails.getAuthorities()));
-	}
-
-	private void setRefreshAuthentication(String type, String token) {
-		String userId = jwtService.extractRefreshTokenSubject(token);
-		CustomUserDetails userDetails = userDetailService.loadUserByUsername(userId);
-		SecurityContextHolder.getContext().setAuthentication(new CustomAuthenticationToken(type, userDetails, userDetails.getAuthorities()));
+		SecurityContextHolder.getContext().setAuthentication(new CustomAuthenticationToken(userDetails, userDetails.getAuthorities()));
 	}
 }

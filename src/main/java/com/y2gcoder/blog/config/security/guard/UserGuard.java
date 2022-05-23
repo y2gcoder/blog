@@ -14,9 +14,7 @@ public class UserGuard {
 	private final AuthHelper authHelper;
 
 	public boolean check(Long id) {
-		return authHelper.isAuthenticated()
-				&& authHelper.isAccessTokenType()
-				&& hasAuthority(id);
+		return authHelper.isAuthenticated() && hasAuthority(id);
 	}
 
 	private boolean hasAuthority(Long id) {

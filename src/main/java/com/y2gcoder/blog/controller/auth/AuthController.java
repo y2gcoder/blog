@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -27,5 +28,10 @@ public class AuthController {
 	@PostMapping("/auth/sign-in")
 	public ResponseEntity<ApiResponse> signIn(@Valid @RequestBody SignInRequest request) {
 		return ResponseEntity.ok(ApiResponse.success(authService.signIn(request)));
+	}
+
+	@PostMapping("/auth/refresh-token")
+	public ResponseEntity<ApiResponse> refreshToken(@RequestHeader(value = "Authorization") String refreshToken) {
+		return ResponseEntity.ok(ApiResponse.success(authService.refreshToken(refreshToken)));
 	}
 }

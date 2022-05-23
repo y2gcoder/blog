@@ -114,16 +114,16 @@ class UserControllerIntegrationTest {
 	}
 
 	@Test
-	void deleteAccessDeniedByRefreshTokenTest() throws Exception {
+	void deleteUnauthorizedByRefreshTokenTest() throws Exception {
 		// given
 		User user = userJpaRepository.findByEmail(initDB.getUser1Email()).orElseThrow(UserNotFoundException::new);
 		SignInResponse signInResponse = authService.signIn(createSignInRequest(initDB.getUser1Email(), initDB.getPassword()));
 
 		// when, then
 		mockMvc.perform(
-						delete("/api/members/{id}", user.getId()).header("Authorization", signInResponse.getRefreshToken()))
+						delete("/users/{id}", user.getId()).header("Authorization", signInResponse.getRefreshToken()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("/exception/access-denied"));
+				.andExpect(redirectedUrl("/exception/entry-point"));
 	}
 
 }

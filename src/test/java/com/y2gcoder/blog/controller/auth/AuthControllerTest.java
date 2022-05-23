@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static com.y2gcoder.blog.factory.dto.RefreshTokenResponseFactory.createRefreshTokenResponse;
 import static com.y2gcoder.blog.factory.dto.SignInRequestFactory.createSignInRequest;
 import static com.y2gcoder.blog.factory.dto.SignInResponseFactory.createSignInResponse;
 import static com.y2gcoder.blog.factory.dto.SignUpRequestFactory.createSignUpRequest;
@@ -83,6 +84,19 @@ class AuthControllerTest {
 				.andExpect(status().isCreated())
 				.andExpect(jsonPath("$.result").doesNotExist());
 
+	}
+
+	@Test
+	void refreshTokenTest() throws Exception {
+		//given
+		given(authService.refreshToken("refreshToken")).willReturn(createRefreshTokenResponse("accessToken"));
+
+		//when, then
+		mockMvc.perform(
+						post("/auth/refresh-token")
+								.header("Authorization", "refreshToken")
+				).andExpect(status().isOk())
+				.andExpect(jsonPath("$.result.data.accessToken").value("accessToken"));
 	}
 
 }
