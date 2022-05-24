@@ -67,4 +67,10 @@ public class ExceptionAdvice {
 	public ApiResponse missingRequestHeaderException(MissingRequestHeaderException e) {
 		return ApiResponse.failure(-1008, e.getHeaderName() + " 요청 헤더가 누락되었습니다.");
 	}
+
+	@ExceptionHandler(RefreshTokenFailureException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ApiResponse refreshTokenFailureException() {
+		return ApiResponse.failure(-1009, "");
+	}
 }

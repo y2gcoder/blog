@@ -116,6 +116,25 @@ class UserJpaRepositoryTest {
 		assertThat(resultList.size()).isZero();
 	}
 
+	@Test
+	void findWithRolesByEmailTest() {
+		//given
+		List<RoleType> roleTypes = List.of(RoleType.ROLE_USER, RoleType.ROLE_ADMIN);
+		List<Role> roles = roleTypes.stream().map(Role::new).collect(Collectors.toList());
+		roleJpaRepository.saveAll(roles);
+		User user = userJpaRepository.save(createUserWithRoles(roleJpaRepository.findAll()));
+		flushAndClear();
+
+		//when
+		User foundUser = userJpaRepository.findWithRolesByEmail(user.getEmail()).orElseThrow(UserNotFoundException::new);
+
+		//then
+		List<RoleType> result = foundUser.getRoles().stream().map(userRole -> userRole.getRole().getRoleType())
+				.collect(Collectors.toList());
+		assertThat(result.size()).isEqualTo(roleTypes.size());
+		assertThat(result).contains(roleTypes.get(0), roleTypes.get(1));
+	}
+
 	private void flushAndClear() {
 		em.flush();
 		em.clear();

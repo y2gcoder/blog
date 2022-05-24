@@ -1,8 +1,10 @@
 package com.y2gcoder.blog.service.auth;
 
 import com.y2gcoder.blog.config.token.TokenHelper;
+import com.y2gcoder.blog.entity.user.Role;
 import com.y2gcoder.blog.entity.user.RoleType;
 import com.y2gcoder.blog.entity.user.User;
+import com.y2gcoder.blog.entity.user.UserRole;
 import com.y2gcoder.blog.exception.*;
 import com.y2gcoder.blog.repository.user.RoleJpaRepository;
 import com.y2gcoder.blog.repository.user.UserJpaRepository;
@@ -14,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -34,18 +38,17 @@ public class AuthService {
 
 	@Transactional(readOnly = true)
 	public SignInResponse signIn(SignInRequest req) {
-		User user = userJpaRepository.findByEmail(req.getEmail()).orElseThrow(LoginFailureException::new);
+		User user = userJpaRepository.findWithRolesByEmail(req.getEmail()).orElseThrow(LoginFailureException::new);
 		validatePassword(req, user);
-		String subject = createSubject(user);
-		String accessToken = accessTokenHelper.createToken(subject);
-		String refreshToken = refreshTokenHelper.createToken(subject);
+		TokenHelper.PrivateClaims privateClaims = createPrivateClaims(user);
+		String accessToken = accessTokenHelper.createToken(privateClaims);
+		String refreshToken = refreshTokenHelper.createToken(privateClaims);
 		return new SignInResponse(accessToken, refreshToken);
 	}
 
 	public RefreshTokenResponse refreshToken(String refreshToken) {
-		validateRefreshToken(refreshToken);
-		String subject = refreshTokenHelper.extractSubject(refreshToken);
-		String accessToken = accessTokenHelper.createToken(subject);
+		TokenHelper.PrivateClaims privateClaims = refreshTokenHelper.parse(refreshToken).orElseThrow(RefreshTokenFailureException::new);
+		String accessToken = accessTokenHelper.createToken(privateClaims);
 		return new RefreshTokenResponse(accessToken);
 	}
 
@@ -60,14 +63,14 @@ public class AuthService {
 		}
 	}
 
-	private String createSubject(User user) {
-		return String.valueOf(user.getId());
-	}
-
-
-	private void validateRefreshToken(String refreshToken) {
-		if (!refreshTokenHelper.validate(refreshToken)) {
-			throw new AuthenticationEntryPointException();
-		}
+	private TokenHelper.PrivateClaims createPrivateClaims(User user) {
+		return new TokenHelper.PrivateClaims(
+				String.valueOf(user.getId()),
+				user.getRoles().stream()
+						.map(UserRole::getRole)
+						.map(Role::getRoleType)
+						.map(Enum::toString)
+						.collect(Collectors.toList())
+		);
 	}
 }

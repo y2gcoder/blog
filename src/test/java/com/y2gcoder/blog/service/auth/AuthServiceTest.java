@@ -3,10 +3,7 @@ package com.y2gcoder.blog.service.auth;
 import com.y2gcoder.blog.config.token.TokenHelper;
 import com.y2gcoder.blog.entity.user.Role;
 import com.y2gcoder.blog.entity.user.RoleType;
-import com.y2gcoder.blog.exception.AuthenticationEntryPointException;
-import com.y2gcoder.blog.exception.LoginFailureException;
-import com.y2gcoder.blog.exception.RoleNotFoundException;
-import com.y2gcoder.blog.exception.UserEmailAlreadyExistsException;
+import com.y2gcoder.blog.exception.*;
 import com.y2gcoder.blog.repository.user.RoleJpaRepository;
 import com.y2gcoder.blog.repository.user.UserJpaRepository;
 import com.y2gcoder.blog.service.auth.dto.RefreshTokenResponse;
@@ -19,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.y2gcoder.blog.factory.dto.SignInRequestFactory.createSignInRequest;
@@ -93,10 +91,10 @@ class AuthServiceTest {
 	@Test
 	void signInTest() {
 		// given
-		given(userJpaRepository.findByEmail(any())).willReturn(Optional.of(createUser()));
+		given(userJpaRepository.findWithRolesByEmail(any())).willReturn(Optional.of(createUser()));
 		given(passwordEncoder.matches(anyString(), anyString())).willReturn(true);
-		given(accessTokenHelper.createToken(anyString())).willReturn("access");
-		given(refreshTokenHelper.createToken(anyString())).willReturn("refresh");
+		given(accessTokenHelper.createToken(any())).willReturn("access");
+		given(refreshTokenHelper.createToken(any())).willReturn("refresh");
 
 		// when
 		SignInResponse res = authService.signIn(createSignInRequest("email", "password"));
@@ -107,9 +105,9 @@ class AuthServiceTest {
 	}
 
 	@Test
-	void signInExceptionByNoneMemberTest() {
+	void signInExceptionByNoneUserTest() {
 		// given
-		given(userJpaRepository.findByEmail(any())).willReturn(Optional.empty());
+		given(userJpaRepository.findWithRolesByEmail(any())).willReturn(Optional.empty());
 
 		// when, then
 		assertThatThrownBy(() -> authService.signIn(createSignInRequest("email", "password")))
@@ -119,7 +117,7 @@ class AuthServiceTest {
 	@Test
 	void signInExceptionByInvalidPasswordTest() {
 		// given
-		given(userJpaRepository.findByEmail(any())).willReturn(Optional.of(createUser()));
+		given(userJpaRepository.findWithRolesByEmail(any())).willReturn(Optional.of(createUser()));
 		given(passwordEncoder.matches(anyString(), anyString())).willReturn(false);
 
 		// when, then
@@ -133,9 +131,9 @@ class AuthServiceTest {
 		String refreshToken = "refreshToken";
 		String subject = "subject";
 		String accessToken = "accessToken";
-		given(refreshTokenHelper.validate(refreshToken)).willReturn(true);
-		given(refreshTokenHelper.extractSubject(refreshToken)).willReturn(subject);
-		given(accessTokenHelper.createToken(subject)).willReturn(accessToken);
+		given(refreshTokenHelper.parse(refreshToken))
+				.willReturn(Optional.of(new TokenHelper.PrivateClaims("userId", List.of("ROLE_USER"))));
+		given(accessTokenHelper.createToken(any())).willReturn(accessToken);
 
 		//when
 		RefreshTokenResponse response = authService.refreshToken(refreshToken);
@@ -148,11 +146,11 @@ class AuthServiceTest {
 	void refreshTokenExceptionByInvalidTokenTest() {
 		//given
 		String refreshToken = "refreshToken";
-		given(refreshTokenHelper.validate(refreshToken)).willReturn(false);
+		given(refreshTokenHelper.parse(refreshToken)).willReturn(Optional.empty());
 
 		//when, then
 		assertThatThrownBy(() -> authService.refreshToken(refreshToken))
-				.isInstanceOf(AuthenticationEntryPointException.class);
+				.isInstanceOf(RefreshTokenFailureException.class);
 	}
 
 }
