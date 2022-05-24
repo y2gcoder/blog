@@ -5,7 +5,9 @@ import com.y2gcoder.blog.exception.CustomAccessDeniedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 
+@ApiIgnore
 @RequestMapping("/exception")
 @RestController
 public class ExceptionController {

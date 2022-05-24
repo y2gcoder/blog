@@ -5,7 +5,6 @@ import com.y2gcoder.blog.exception.UserNotFoundException;
 import com.y2gcoder.blog.init.TestInitDB;
 import com.y2gcoder.blog.repository.user.UserJpaRepository;
 import com.y2gcoder.blog.service.auth.AuthService;
-import com.y2gcoder.blog.service.auth.dto.SignInRequest;
 import com.y2gcoder.blog.service.auth.dto.SignInResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +57,7 @@ class UserControllerIntegrationTest {
 
 		//when, then
 		mockMvc.perform(
-				get("/users/{id}", user.getId())
+				get("/api/users/{id}", user.getId())
 		).andExpect(status().isOk());
 	}
 
@@ -72,7 +71,7 @@ class UserControllerIntegrationTest {
 
 		//when, then
 		mockMvc.perform(
-				delete("/users/{id}", user.getId()).header("Authorization", signInResponse.getAccessToken())
+				delete("/api/users/{id}", user.getId()).header("Authorization", signInResponse.getAccessToken())
 		).andExpect(status().isOk());
 	}
 
@@ -84,7 +83,7 @@ class UserControllerIntegrationTest {
 
 		// when, then
 		mockMvc.perform(
-						delete("/users/{id}", user.getId()).header("Authorization", adminSignInRes.getAccessToken()))
+						delete("/api/users/{id}", user.getId()).header("Authorization", adminSignInRes.getAccessToken()))
 				.andExpect(status().isOk());
 	}
 
@@ -95,7 +94,7 @@ class UserControllerIntegrationTest {
 
 		// when, then
 		mockMvc.perform(
-						delete("/users/{id}", user.getId()))
+						delete("/api/users/{id}", user.getId()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/exception/entry-point"));
 	}
@@ -108,7 +107,7 @@ class UserControllerIntegrationTest {
 
 		// when, then
 		mockMvc.perform(
-						delete("/users/{id}", user.getId()).header("Authorization", attackerSignInRes.getAccessToken()))
+						delete("/api/users/{id}", user.getId()).header("Authorization", attackerSignInRes.getAccessToken()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/exception/access-denied"));
 	}
@@ -121,7 +120,7 @@ class UserControllerIntegrationTest {
 
 		// when, then
 		mockMvc.perform(
-						delete("/users/{id}", user.getId()).header("Authorization", signInResponse.getRefreshToken()))
+						delete("/api/users/{id}", user.getId()).header("Authorization", signInResponse.getRefreshToken()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/exception/entry-point"));
 	}

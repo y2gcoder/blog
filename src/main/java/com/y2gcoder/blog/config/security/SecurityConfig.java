@@ -23,7 +23,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().mvcMatchers("/exception/**");
+		web.ignoring()
+				.mvcMatchers("/exception/**", "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**");
 	}
 
 	@Override
@@ -35,9 +36,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and()
 				.authorizeRequests()
-				.antMatchers(HttpMethod.POST, "/auth/sign-up", "/auth/sign-in", "/auth/refresh-token").permitAll()
-				.antMatchers(HttpMethod.GET, "/**").permitAll()
-				.antMatchers(HttpMethod.DELETE, "/users/{id}/**").access("@userGuard.check(#id)")
+				.antMatchers(HttpMethod.POST, "/api/auth/sign-up", "/api/auth/sign-in", "/api/auth/refresh-token").permitAll()
+				.antMatchers(HttpMethod.GET, "/api/**").permitAll()
+				.antMatchers(HttpMethod.DELETE, "/api/users/{id}/**").access("@userGuard.check(#id)")
 				.anyRequest().hasAnyRole("ADMIN")
 				.and()
 				.exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())

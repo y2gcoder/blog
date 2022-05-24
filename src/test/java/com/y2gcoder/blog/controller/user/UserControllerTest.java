@@ -34,7 +34,7 @@ class UserControllerTest {
 		Long id = 1L;
 
 		//when, then
-		mockMvc.perform(get("/users/{id}", id)).andExpect(status().isOk());
+		mockMvc.perform(get("/api/users/{id}", id)).andExpect(status().isOk());
 		verify(userService).findUser(id);
 	}
 
@@ -44,7 +44,7 @@ class UserControllerTest {
 		Long id = 1L;
 
 		//when, then
-		mockMvc.perform(delete("/users/{id}", id)).andExpect(status().isOk());
+		mockMvc.perform(delete("/api/users/{id}", id)).andExpect(status().isOk());
 		verify(userService).delete(id);
 	}
 }

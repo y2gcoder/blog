@@ -3,27 +3,26 @@ package com.y2gcoder.blog.config.security.guard;
 import com.y2gcoder.blog.config.security.CustomAuthenticationToken;
 import com.y2gcoder.blog.config.security.CustomUserDetails;
 import com.y2gcoder.blog.entity.user.RoleType;
-import lombok.extern.slf4j.Slf4j;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Slf4j
-@Component
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AuthHelper {
-	public boolean isAuthenticated() {
+	public static boolean isAuthenticated() {
 		return getAuthentication() instanceof CustomAuthenticationToken && getAuthentication().isAuthenticated();
 	}
 
-	public Long extractUserId() {
+	public static Long extractUserId() {
 		return Long.valueOf(getUserDetails().getUserId());
 	}
 
-	public Set<RoleType> extractUserRoles() {
+	public static Set<RoleType> extractUserRoles() {
 		return getUserDetails().getAuthorities()
 				.stream()
 				.map(GrantedAuthority::getAuthority)
@@ -31,11 +30,11 @@ public class AuthHelper {
 				.collect(Collectors.toSet());
 	}
 
-	private CustomUserDetails getUserDetails() {
+	private static CustomUserDetails getUserDetails() {
 		return (CustomUserDetails) getAuthentication().getPrincipal();
 	}
 
-	private Authentication getAuthentication() {
+	private static Authentication getAuthentication() {
 		return SecurityContextHolder.getContext().getAuthentication();
 	}
 }

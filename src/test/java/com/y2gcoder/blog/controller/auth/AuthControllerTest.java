@@ -45,7 +45,7 @@ class AuthControllerTest {
 
 		// when, then
 		mockMvc.perform(
-						post("/auth/sign-up")
+						post("/api/auth/sign-up")
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(objectMapper.writeValueAsString(req)))
 				.andExpect(status().isCreated());
@@ -61,7 +61,7 @@ class AuthControllerTest {
 
 		// when, then
 		mockMvc.perform(
-						post("/auth/sign-in")
+						post("/api/auth/sign-in")
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(objectMapper.writeValueAsString(req)))
 				.andExpect(status().isOk())
@@ -78,7 +78,7 @@ class AuthControllerTest {
 
 		// when, then
 		mockMvc.perform(
-						post("/auth/sign-up")
+						post("/api/auth/sign-up")
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(objectMapper.writeValueAsString(req)))
 				.andExpect(status().isCreated())
@@ -93,7 +93,7 @@ class AuthControllerTest {
 
 		//when, then
 		mockMvc.perform(
-						post("/auth/refresh-token")
+						post("/api/auth/refresh-token")
 								.header("Authorization", "refreshToken")
 				).andExpect(status().isOk())
 				.andExpect(jsonPath("$.result.data.accessToken").value("accessToken"));

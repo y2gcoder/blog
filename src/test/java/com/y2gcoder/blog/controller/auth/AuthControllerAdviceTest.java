@@ -53,7 +53,7 @@ class AuthControllerAdviceTest {
 
 		//when, then
 		mockMvc.perform(
-				post("/auth/sign-in")
+				post("/api/auth/sign-in")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(req))
 		).andExpect(status().isUnauthorized());
@@ -66,7 +66,7 @@ class AuthControllerAdviceTest {
 
 		//when, then
 		mockMvc.perform(
-				post("/auth/sign-in")
+				post("/api/auth/sign-in")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(req))
 		).andExpect(status().isBadRequest());
@@ -80,7 +80,7 @@ class AuthControllerAdviceTest {
 
 		//when, then
 		mockMvc.perform(
-				post("/auth/sign-up")
+				post("/api/auth/sign-up")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(req))
 		).andExpect(status().isConflict());
@@ -95,7 +95,7 @@ class AuthControllerAdviceTest {
 
 		//when, then
 		mockMvc.perform(
-				post("/auth/sign-up")
+				post("/api/auth/sign-up")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(req))
 		).andExpect(status().isNotFound());
@@ -108,7 +108,7 @@ class AuthControllerAdviceTest {
 
 		//when, then
 		mockMvc.perform(
-				post("/auth/sign-up")
+				post("/api/auth/sign-up")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(req))
 		).andExpect(status().isBadRequest());
@@ -121,7 +121,7 @@ class AuthControllerAdviceTest {
 
 		//when, then
 		mockMvc.perform(
-						post("/auth/refresh-token")
+						post("/api/auth/refresh-token")
 								.header("Authorization", "refreshToken")
 				).andExpect(status().isUnauthorized())
 				.andExpect(jsonPath("$.code").value(-1006));
@@ -131,7 +131,7 @@ class AuthControllerAdviceTest {
 	void refreshTokenMissingRequestHeaderException() throws Exception {
 		//given, when, then
 		mockMvc.perform(
-						post("/auth/refresh-token")
+						post("/api/auth/refresh-token")
 				).andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.code").value(-1008));
 	}

@@ -40,7 +40,7 @@ public class UserControllerAdviceTest {
 		//given
 		given(userService.findUser(anyLong())).willThrow(UserNotFoundException.class);
 		//when, then
-		mockMvc.perform(get("/users/{id}", 1L))
+		mockMvc.perform(get("/api/users/{id}", 1L))
 				.andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.code").value(-1004));
 	}
@@ -51,7 +51,7 @@ public class UserControllerAdviceTest {
 		doThrow(UserNotFoundException.class).when(userService).delete(anyLong());
 		//when, then
 		mockMvc.perform(
-						delete("/users/{id}", 1L)
+						delete("/api/users/{id}", 1L)
 				).andExpect(status().isNotFound())
 				.andExpect(jsonPath("$.code").value(-1004));
 	}
