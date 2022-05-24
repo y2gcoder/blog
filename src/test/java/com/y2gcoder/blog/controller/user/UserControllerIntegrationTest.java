@@ -3,7 +3,7 @@ package com.y2gcoder.blog.controller.user;
 import com.y2gcoder.blog.entity.user.User;
 import com.y2gcoder.blog.exception.UserNotFoundException;
 import com.y2gcoder.blog.init.TestInitDB;
-import com.y2gcoder.blog.repository.user.UserJpaRepository;
+import com.y2gcoder.blog.repository.user.UserRepository;
 import com.y2gcoder.blog.service.auth.AuthService;
 import com.y2gcoder.blog.service.auth.dto.SignInResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +38,7 @@ class UserControllerIntegrationTest {
 	@Autowired
 	AuthService authService;
 	@Autowired
-	UserJpaRepository userJpaRepository;
+	UserRepository userRepository;
 
 	@BeforeEach
 	void beforeEach() {
@@ -49,7 +49,7 @@ class UserControllerIntegrationTest {
 	@Test
 	void findUserTest() throws Exception {
 		//given
-		User user = userJpaRepository
+		User user = userRepository
 				.findByEmail(initDB.getUser1Email())
 				.orElseThrow(UserNotFoundException::new);
 
@@ -62,7 +62,7 @@ class UserControllerIntegrationTest {
 	@Test
 	void deleteTest() throws Exception {
 		//given
-		User user = userJpaRepository
+		User user = userRepository
 				.findByEmail(initDB.getUser1Email())
 				.orElseThrow(UserNotFoundException::new);
 		SignInResponse signInResponse = authService.signIn(createSignInRequest(initDB.getUser1Email(), initDB.getPassword()));
@@ -76,7 +76,7 @@ class UserControllerIntegrationTest {
 	@Test
 	void deleteByAdminTest() throws Exception {
 		// given
-		User user = userJpaRepository.findByEmail(initDB.getUser1Email()).orElseThrow(UserNotFoundException::new);
+		User user = userRepository.findByEmail(initDB.getUser1Email()).orElseThrow(UserNotFoundException::new);
 		SignInResponse adminSignInRes = authService.signIn(createSignInRequest(initDB.getAdminEmail(), initDB.getPassword()));
 
 		// when, then
@@ -88,7 +88,7 @@ class UserControllerIntegrationTest {
 	@Test
 	void deleteUnauthorizedByNoneTokenTest() throws Exception {
 		// given
-		User user = userJpaRepository.findByEmail(initDB.getUser1Email()).orElseThrow(UserNotFoundException::new);
+		User user = userRepository.findByEmail(initDB.getUser1Email()).orElseThrow(UserNotFoundException::new);
 
 		// when, then
 		mockMvc.perform(
@@ -99,7 +99,7 @@ class UserControllerIntegrationTest {
 	@Test
 	void deleteAccessDeniedByNotResourceOwnerTest() throws Exception {
 		// given
-		User user = userJpaRepository.findByEmail(initDB.getUser1Email()).orElseThrow(UserNotFoundException::new);
+		User user = userRepository.findByEmail(initDB.getUser1Email()).orElseThrow(UserNotFoundException::new);
 		SignInResponse attackerSignInRes = authService.signIn(createSignInRequest(initDB.getUser2Email(), initDB.getPassword()));
 
 		// when, then
@@ -111,7 +111,7 @@ class UserControllerIntegrationTest {
 	@Test
 	void deleteUnauthorizedByRefreshTokenTest() throws Exception {
 		// given
-		User user = userJpaRepository.findByEmail(initDB.getUser1Email()).orElseThrow(UserNotFoundException::new);
+		User user = userRepository.findByEmail(initDB.getUser1Email()).orElseThrow(UserNotFoundException::new);
 		SignInResponse signInResponse = authService.signIn(createSignInRequest(initDB.getUser1Email(), initDB.getPassword()));
 
 		// when, then

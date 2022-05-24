@@ -6,8 +6,8 @@ import com.y2gcoder.blog.entity.user.RoleType;
 import com.y2gcoder.blog.entity.user.User;
 import com.y2gcoder.blog.entity.user.UserRole;
 import com.y2gcoder.blog.exception.*;
-import com.y2gcoder.blog.repository.user.RoleJpaRepository;
-import com.y2gcoder.blog.repository.user.UserJpaRepository;
+import com.y2gcoder.blog.repository.user.RoleRepository;
+import com.y2gcoder.blog.repository.user.UserRepository;
 import com.y2gcoder.blog.service.auth.dto.RefreshTokenResponse;
 import com.y2gcoder.blog.service.auth.dto.SignInRequest;
 import com.y2gcoder.blog.service.auth.dto.SignInResponse;
@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class AuthService {
-	private final UserJpaRepository userJpaRepository;
-	private final RoleJpaRepository roleJpaRepository;
+	private final UserRepository userRepository;
+	private final RoleRepository roleRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final TokenHelper accessTokenHelper;
 	private final TokenHelper refreshTokenHelper;
@@ -31,14 +31,14 @@ public class AuthService {
 	@Transactional
 	public void signUp(SignUpRequest req) {
 		validateSignUpInfo(req);
-		userJpaRepository.save(SignUpRequest.toEntity(req,
-				roleJpaRepository.findByRoleType(RoleType.ROLE_USER).orElseThrow(RoleNotFoundException::new),
+		userRepository.save(SignUpRequest.toEntity(req,
+				roleRepository.findByRoleType(RoleType.ROLE_USER).orElseThrow(RoleNotFoundException::new),
 				passwordEncoder));
 	}
 
 	@Transactional(readOnly = true)
 	public SignInResponse signIn(SignInRequest req) {
-		User user = userJpaRepository.findWithRolesByEmail(req.getEmail()).orElseThrow(LoginFailureException::new);
+		User user = userRepository.findWithRolesByEmail(req.getEmail()).orElseThrow(LoginFailureException::new);
 		validatePassword(req, user);
 		TokenHelper.PrivateClaims privateClaims = createPrivateClaims(user);
 		String accessToken = accessTokenHelper.createToken(privateClaims);
@@ -53,7 +53,7 @@ public class AuthService {
 	}
 
 	private void validateSignUpInfo(SignUpRequest req) {
-		if(userJpaRepository.existsByEmail(req.getEmail()))
+		if(userRepository.existsByEmail(req.getEmail()))
 			throw new UserEmailAlreadyExistsException(req.getEmail());
 	}
 

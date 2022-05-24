@@ -4,8 +4,8 @@ import com.y2gcoder.blog.config.token.TokenHelper;
 import com.y2gcoder.blog.entity.user.Role;
 import com.y2gcoder.blog.entity.user.RoleType;
 import com.y2gcoder.blog.exception.*;
-import com.y2gcoder.blog.repository.user.RoleJpaRepository;
-import com.y2gcoder.blog.repository.user.UserJpaRepository;
+import com.y2gcoder.blog.repository.user.RoleRepository;
+import com.y2gcoder.blog.repository.user.UserRepository;
 import com.y2gcoder.blog.service.auth.dto.RefreshTokenResponse;
 import com.y2gcoder.blog.service.auth.dto.SignInResponse;
 import com.y2gcoder.blog.service.auth.dto.SignUpRequest;
@@ -33,9 +33,9 @@ import static org.mockito.Mockito.verify;
 class AuthServiceTest {
 	AuthService authService;
 	@Mock
-	UserJpaRepository userJpaRepository;
+	UserRepository userRepository;
 	@Mock
-	RoleJpaRepository roleJpaRepository;
+	RoleRepository roleRepository;
 	@Mock
 	PasswordEncoder passwordEncoder;
 	@Mock
@@ -46,8 +46,8 @@ class AuthServiceTest {
 	@BeforeEach
 	void beforeEach() {
 		authService = new AuthService(
-				userJpaRepository,
-				roleJpaRepository,
+				userRepository,
+				roleRepository,
 				passwordEncoder,
 				accessTokenHelper,
 				refreshTokenHelper
@@ -58,20 +58,20 @@ class AuthServiceTest {
 	void signUpTest() {
 		// given
 		SignUpRequest req = createSignUpRequest();
-		given(roleJpaRepository.findByRoleType(RoleType.ROLE_USER)).willReturn(Optional.of(new Role(RoleType.ROLE_USER)));
+		given(roleRepository.findByRoleType(RoleType.ROLE_USER)).willReturn(Optional.of(new Role(RoleType.ROLE_USER)));
 
 		// when
 		authService.signUp(req);
 
 		// then
 		verify(passwordEncoder).encode(req.getPassword());
-		verify(userJpaRepository).save(any());
+		verify(userRepository).save(any());
 	}
 
 	@Test
 	void validateSignUpByDuplicateEmailTest() {
 		// given
-		given(userJpaRepository.existsByEmail(anyString())).willReturn(true);
+		given(userRepository.existsByEmail(anyString())).willReturn(true);
 
 		// when, then
 		assertThatThrownBy(() -> authService.signUp(createSignUpRequest()))
@@ -81,7 +81,7 @@ class AuthServiceTest {
 	@Test
 	void signUpRoleNotFoundTest() {
 		// given
-		given(roleJpaRepository.findByRoleType(RoleType.ROLE_USER)).willReturn(Optional.empty());
+		given(roleRepository.findByRoleType(RoleType.ROLE_USER)).willReturn(Optional.empty());
 
 		// when, then
 		assertThatThrownBy(() -> authService.signUp(createSignUpRequest()))
@@ -91,7 +91,7 @@ class AuthServiceTest {
 	@Test
 	void signInTest() {
 		// given
-		given(userJpaRepository.findWithRolesByEmail(any())).willReturn(Optional.of(createUser()));
+		given(userRepository.findWithRolesByEmail(any())).willReturn(Optional.of(createUser()));
 		given(passwordEncoder.matches(anyString(), anyString())).willReturn(true);
 		given(accessTokenHelper.createToken(any())).willReturn("access");
 		given(refreshTokenHelper.createToken(any())).willReturn("refresh");
@@ -107,7 +107,7 @@ class AuthServiceTest {
 	@Test
 	void signInExceptionByNoneUserTest() {
 		// given
-		given(userJpaRepository.findWithRolesByEmail(any())).willReturn(Optional.empty());
+		given(userRepository.findWithRolesByEmail(any())).willReturn(Optional.empty());
 
 		// when, then
 		assertThatThrownBy(() -> authService.signIn(createSignInRequest("email", "password")))
@@ -117,7 +117,7 @@ class AuthServiceTest {
 	@Test
 	void signInExceptionByInvalidPasswordTest() {
 		// given
-		given(userJpaRepository.findWithRolesByEmail(any())).willReturn(Optional.of(createUser()));
+		given(userRepository.findWithRolesByEmail(any())).willReturn(Optional.of(createUser()));
 		given(passwordEncoder.matches(anyString(), anyString())).willReturn(false);
 
 		// when, then

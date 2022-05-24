@@ -1,7 +1,6 @@
 package com.y2gcoder.blog.repository.user;
 
 import com.y2gcoder.blog.entity.user.Role;
-import com.y2gcoder.blog.entity.user.RoleType;
 import com.y2gcoder.blog.exception.RoleNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,8 +16,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
-class RoleJpaRepositoryTest {
-	@Autowired RoleJpaRepository roleJpaRepository;
+class RoleRepositoryTest {
+	@Autowired
+	RoleRepository roleRepository;
 	@PersistenceContext EntityManager em;
 
 	@Test
@@ -28,10 +28,10 @@ class RoleJpaRepositoryTest {
 		Role role = createRole();
 
 		//when
-		roleJpaRepository.save(role);
+		roleRepository.save(role);
 
 		//then
-		Role findRole = roleJpaRepository.findById(role.getId()).orElseThrow(RoleNotFoundException::new);
+		Role findRole = roleRepository.findById(role.getId()).orElseThrow(RoleNotFoundException::new);
 		assertThat(findRole).isEqualTo(role);
 	}
 
@@ -39,11 +39,11 @@ class RoleJpaRepositoryTest {
 	@DisplayName("Role:저장 실패, 중복된 Role")
 	void saveRole_duplicateRole_Fail() {
 		//given
-		roleJpaRepository.save(createRole());
+		roleRepository.save(createRole());
 
 		//when
 		//then
-		assertThatThrownBy(() -> roleJpaRepository.save(createRole())).isInstanceOf(DataIntegrityViolationException.class);
+		assertThatThrownBy(() -> roleRepository.save(createRole())).isInstanceOf(DataIntegrityViolationException.class);
 	}
 
 }

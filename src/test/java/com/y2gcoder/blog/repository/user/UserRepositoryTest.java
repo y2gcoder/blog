@@ -14,7 +14,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,12 +21,13 @@ import static com.y2gcoder.blog.factory.entity.UserFactory.createUser;
 import static com.y2gcoder.blog.factory.entity.UserFactory.createUserWithRoles;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-class UserJpaRepositoryTest {
-	@Autowired UserJpaRepository userJpaRepository;
-	@Autowired RoleJpaRepository roleJpaRepository;
+class UserRepositoryTest {
+	@Autowired
+	UserRepository userRepository;
+	@Autowired
+	RoleRepository roleRepository;
 	@PersistenceContext EntityManager em;
 
 	@Test
@@ -36,9 +36,9 @@ class UserJpaRepositoryTest {
 		//given
 		User user = createUser();
 		//when
-		userJpaRepository.save(user);
+		userRepository.save(user);
 		//then
-		User findUser = userJpaRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
+		User findUser = userRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
 		assertThat(findUser).isEqualTo(user);
 	}
 
@@ -46,10 +46,10 @@ class UserJpaRepositoryTest {
 	@DisplayName("User:저장 실패, 중복된 email")
 	void saveUser_duplicateEmail_Fail() {
 		//given
-		userJpaRepository.save(createUser());
+		userRepository.save(createUser());
 		//when
 		//then
-		assertThatThrownBy(() -> userJpaRepository.save(createUser())).isInstanceOf(DataIntegrityViolationException.class);
+		assertThatThrownBy(() -> userRepository.save(createUser())).isInstanceOf(DataIntegrityViolationException.class);
 	}
 
 	@Test
@@ -57,15 +57,15 @@ class UserJpaRepositoryTest {
 	void changeNickname_Normal_Success() {
 		//given
 		User user = createUser();
-		userJpaRepository.save(user);
+		userRepository.save(user);
 		flushAndClear();
 		//when
-		User findUser = userJpaRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
+		User findUser = userRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
 		String nickname = "바꾼닉네임";
 		findUser.changeNickname(nickname);
 		flushAndClear();
 		//then
-		User findUser2 = userJpaRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
+		User findUser2 = userRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
 		assertThat(findUser2.getNickname()).isEqualTo(nickname);
 	}
 
@@ -74,15 +74,15 @@ class UserJpaRepositoryTest {
 	void changeProfile_Normal_Success() {
 		//given
 		User user = createUser();
-		userJpaRepository.save(user);
+		userRepository.save(user);
 		flushAndClear();
 		//when
-		User findUser = userJpaRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
+		User findUser = userRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
 		String profile = "프로필";
 		findUser.changeProfile(profile);
 		flushAndClear();
 		//then
-		User findUser2 = userJpaRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
+		User findUser2 = userRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
 		assertThat(findUser2.getProfile()).isEqualTo(profile);
 	}
 
@@ -92,11 +92,11 @@ class UserJpaRepositoryTest {
 		//given
 		List<RoleType> roleTypes = List.of(RoleType.ROLE_USER, RoleType.ROLE_ADMIN);
 		List<Role> roles = roleTypes.stream().map(Role::new).collect(Collectors.toList());
-		roleJpaRepository.saveAll(roles);
+		roleRepository.saveAll(roles);
 		//when
-		User savedUser = userJpaRepository.save(createUserWithRoles(roleJpaRepository.findAll()));
+		User savedUser = userRepository.save(createUserWithRoles(roleRepository.findAll()));
 		//then
-		User findUser = userJpaRepository.findById(savedUser.getId()).orElseThrow(UserNotFoundException::new);
+		User findUser = userRepository.findById(savedUser.getId()).orElseThrow(UserNotFoundException::new);
 		assertThat(findUser.getRoles().size()).isEqualTo(roles.size());
 	}
 
@@ -106,10 +106,10 @@ class UserJpaRepositoryTest {
 		//given
 		List<RoleType> roleTypes = List.of(RoleType.ROLE_USER, RoleType.ROLE_ADMIN);
 		List<Role> roles = roleTypes.stream().map(Role::new).collect(Collectors.toList());
-		roleJpaRepository.saveAll(roles);
-		User savedUser = userJpaRepository.save(createUserWithRoles(roleJpaRepository.findAll()));
+		roleRepository.saveAll(roles);
+		User savedUser = userRepository.save(createUserWithRoles(roleRepository.findAll()));
 		//when
-		userJpaRepository.delete(savedUser);
+		userRepository.delete(savedUser);
 		flushAndClear();
 		//then
 		List<UserRole> resultList = em.createQuery("select ur from UserRole ur", UserRole.class).getResultList();
@@ -121,12 +121,12 @@ class UserJpaRepositoryTest {
 		//given
 		List<RoleType> roleTypes = List.of(RoleType.ROLE_USER, RoleType.ROLE_ADMIN);
 		List<Role> roles = roleTypes.stream().map(Role::new).collect(Collectors.toList());
-		roleJpaRepository.saveAll(roles);
-		User user = userJpaRepository.save(createUserWithRoles(roleJpaRepository.findAll()));
+		roleRepository.saveAll(roles);
+		User user = userRepository.save(createUserWithRoles(roleRepository.findAll()));
 		flushAndClear();
 
 		//when
-		User foundUser = userJpaRepository.findWithRolesByEmail(user.getEmail()).orElseThrow(UserNotFoundException::new);
+		User foundUser = userRepository.findWithRolesByEmail(user.getEmail()).orElseThrow(UserNotFoundException::new);
 
 		//then
 		List<RoleType> result = foundUser.getRoles().stream().map(userRole -> userRole.getRole().getRoleType())

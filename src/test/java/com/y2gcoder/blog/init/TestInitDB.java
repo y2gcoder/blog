@@ -4,8 +4,8 @@ import com.y2gcoder.blog.entity.user.Role;
 import com.y2gcoder.blog.entity.user.RoleType;
 import com.y2gcoder.blog.entity.user.User;
 import com.y2gcoder.blog.exception.RoleNotFoundException;
-import com.y2gcoder.blog.repository.user.RoleJpaRepository;
-import com.y2gcoder.blog.repository.user.UserJpaRepository;
+import com.y2gcoder.blog.repository.user.RoleRepository;
+import com.y2gcoder.blog.repository.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -18,9 +18,9 @@ import java.util.stream.Stream;
 @Component
 public class TestInitDB {
 	@Autowired
-	RoleJpaRepository roleJpaRepository;
+	RoleRepository roleRepository;
 	@Autowired
-	UserJpaRepository userJpaRepository;
+	UserRepository userRepository;
 	@Autowired
 	PasswordEncoder passwordEncoder;
 
@@ -37,37 +37,37 @@ public class TestInitDB {
 	}
 
 	private void initRole() {
-		roleJpaRepository.saveAll(
+		roleRepository.saveAll(
 				Stream.of(RoleType.values())
 						.map(Role::new).collect(Collectors.toList())
 		);
 	}
 
 	private void initTestAdmin() {
-		userJpaRepository.save(
+		userRepository.save(
 				User.builder()
 						.email(adminEmail)
 						.password(passwordEncoder.encode(password))
 						.nickname("admin")
-						.roles(roleJpaRepository.findAll())
+						.roles(roleRepository.findAll())
 						.build()
 		);
 	}
 
 	private void initTestUser() {
-		userJpaRepository.saveAll(
+		userRepository.saveAll(
 				List.of(
 						User.builder()
 								.email(user1Email)
 								.password(passwordEncoder.encode(password))
 								.nickname("user1")
-								.roles(List.of(roleJpaRepository.findByRoleType(RoleType.ROLE_USER).orElseThrow(RoleNotFoundException::new)))
+								.roles(List.of(roleRepository.findByRoleType(RoleType.ROLE_USER).orElseThrow(RoleNotFoundException::new)))
 								.build(),
 						User.builder()
 								.email(user2Email)
 								.password(passwordEncoder.encode(password))
 								.nickname("user2")
-								.roles(List.of(roleJpaRepository.findByRoleType(RoleType.ROLE_USER).orElseThrow(RoleNotFoundException::new)))
+								.roles(List.of(roleRepository.findByRoleType(RoleType.ROLE_USER).orElseThrow(RoleNotFoundException::new)))
 								.build()
 				)
 		);
