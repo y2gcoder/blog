@@ -2,6 +2,7 @@ package com.y2gcoder.blog.controller.user;
 
 import com.y2gcoder.blog.advice.ExceptionAdvice;
 import com.y2gcoder.blog.exception.UserNotFoundException;
+import com.y2gcoder.blog.handler.FailResponseHandler;
 import com.y2gcoder.blog.service.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,13 +11,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -28,11 +27,13 @@ public class UserControllerAdviceTest {
 	UserController userController;
 	@Mock
 	UserService userService;
+	@Mock
+	FailResponseHandler responseHandler;
 	MockMvc mockMvc;
 
 	@BeforeEach
 	void beforeEach() {
-		mockMvc = MockMvcBuilders.standaloneSetup(userController).setControllerAdvice(new ExceptionAdvice()).build();
+		mockMvc = MockMvcBuilders.standaloneSetup(userController).setControllerAdvice(new ExceptionAdvice(responseHandler)).build();
 	}
 
 	@Test
@@ -41,8 +42,7 @@ public class UserControllerAdviceTest {
 		given(userService.findUser(anyLong())).willThrow(UserNotFoundException.class);
 		//when, then
 		mockMvc.perform(get("/api/users/{id}", 1L))
-				.andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.code").value(-1004));
+				.andExpect(status().isNotFound());
 	}
 
 	@Test
@@ -52,7 +52,6 @@ public class UserControllerAdviceTest {
 		//when, then
 		mockMvc.perform(
 						delete("/api/users/{id}", 1L)
-				).andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.code").value(-1004));
+				).andExpect(status().isNotFound());
 	}
 }

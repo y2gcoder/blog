@@ -19,16 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static com.y2gcoder.blog.factory.dto.SignInRequestFactory.createSignInRequest;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles(value = "test")
 @Transactional
 @AutoConfigureMockMvc
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class UserControllerIntegrationTest {
 	@Autowired
 	WebApplicationContext context;
@@ -95,8 +93,7 @@ class UserControllerIntegrationTest {
 		// when, then
 		mockMvc.perform(
 						delete("/api/users/{id}", user.getId()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("/exception/entry-point"));
+				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
@@ -108,8 +105,7 @@ class UserControllerIntegrationTest {
 		// when, then
 		mockMvc.perform(
 						delete("/api/users/{id}", user.getId()).header("Authorization", attackerSignInRes.getAccessToken()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("/exception/access-denied"));
+				.andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -121,8 +117,7 @@ class UserControllerIntegrationTest {
 		// when, then
 		mockMvc.perform(
 						delete("/api/users/{id}", user.getId()).header("Authorization", signInResponse.getRefreshToken()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("/exception/entry-point"));
+				.andExpect(status().isUnauthorized());
 	}
 
 }

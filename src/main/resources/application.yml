@@ -13,3 +13,5 @@ spring:
     properties:
       hibernate:
         default_batch_size: 1000
+  messages:
+    basename: i18n/exception, i18n/validation

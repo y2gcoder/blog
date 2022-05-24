@@ -1,9 +1,9 @@
 package com.y2gcoder.blog.config.security;
 
-import com.y2gcoder.blog.config.token.TokenHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,16 +14,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @RequiredArgsConstructor
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-	private final TokenHelper accessTokenHelper;
 	private final CustomUserDetailService userDetailService;
 
 
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 		web.ignoring()
-				.mvcMatchers("/exception/**", "/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**");
+				.mvcMatchers("/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**");
 	}
 
 	@Override
@@ -36,8 +36,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.and()
 				.authorizeRequests()
 				.antMatchers(HttpMethod.POST, "/api/auth/sign-up", "/api/auth/sign-in", "/api/auth/refresh-token").permitAll()
+				.antMatchers(HttpMethod.DELETE, "/api/users/{id}/**").authenticated()
 				.antMatchers(HttpMethod.GET, "/api/**").permitAll()
-				.antMatchers(HttpMethod.DELETE, "/api/users/{id}/**").access("@userGuard.check(#id)")
 				.anyRequest().hasAnyRole("ADMIN")
 				.and()
 				.exceptionHandling().accessDeniedHandler(new CustomAccessDeniedHandler())
