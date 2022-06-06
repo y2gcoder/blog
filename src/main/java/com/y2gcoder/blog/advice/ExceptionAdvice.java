@@ -74,6 +74,12 @@ public class ExceptionAdvice {
 		return getFailureResponse(MISSING_REQUEST_HEADER_EXCEPTION, e.getHeaderName());
 	}
 
+	@ExceptionHandler(CategoryNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ApiResponse categoryNotFoundException() {
+		return getFailureResponse(CATEGORY_NOT_FOUND_EXCEPTION);
+	}
+
 	@ExceptionHandler(RefreshTokenFailureException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ApiResponse refreshTokenFailureException() {
