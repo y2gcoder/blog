@@ -14,15 +14,11 @@ import java.util.stream.Collectors;
 public class CategoryDto {
 	private Long id;
 	private String name;
-	private int depth;
-	private int sortOrder;
 	private List<CategoryDto> children;
 
 	public CategoryDto(Category category) {
 		this.id = category.getId();
 		this.name = category.getName();
-		this.depth = category.getDepth();
-		this.sortOrder = category.getSortOrder();
 		this.children = category.getChildren().stream().map(CategoryDto::new)
 				.collect(Collectors.toList());
 	}

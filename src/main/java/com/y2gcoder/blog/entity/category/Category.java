@@ -24,12 +24,6 @@ public class Category extends BaseTimeEntity {
 	@Column(nullable = false)
 	private String name;
 
-	@Column(nullable = false)
-	private int depth;
-
-	@Column(nullable = false)
-	private int sortOrder;
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "parent_id")
 	@OnDelete(action = OnDeleteAction.CASCADE)
@@ -39,35 +33,9 @@ public class Category extends BaseTimeEntity {
 	private List<Category> children = new ArrayList<>();
 
 	@Builder
-	public Category(String name, int depth, int sortOrder, Category parent) {
+	public Category(String name, Category parent) {
 		this.name = name;
-		this.depth = depth;
-		this.sortOrder = sortOrder;
 		this.parent = parent;
 	}
 
-	public static Category createCategory(String name) {
-		return Category.builder()
-				.name(name)
-				.build();
-	}
-
-	public static Category createCategory(String name, int sortOrder) {
-		return Category.builder()
-				.name(name)
-				.sortOrder(sortOrder)
-				.build();
-	}
-
-	public static Category createSubCategory(String name, Category parent) {
-		int sortOrder = parent.getChildren().isEmpty()
-				? 0
-				: parent.getChildren().get(parent.getChildren().size() - 1).getSortOrder() + 1;
-		return Category.builder()
-				.name(name)
-				.parent(parent)
-				.depth(parent.getDepth() + 1)
-				.sortOrder(sortOrder)
-				.build();
-	}
 }

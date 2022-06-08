@@ -30,7 +30,7 @@ public class CategoryRepositoryCustomImpl implements CategoryRepositoryCustom {
 				.where(
 						parent.parent.isNull()
 				)
-				.orderBy(parent.sortOrder.asc(), child.sortOrder.asc())
+				.orderBy(parent.id.asc(), child.id.asc())
 				.fetch();
 
 	}

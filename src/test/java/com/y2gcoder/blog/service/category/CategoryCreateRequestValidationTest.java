@@ -1,12 +1,10 @@
 package com.y2gcoder.blog.service.category;
 
-import com.y2gcoder.blog.factory.dto.CategoryCreateRequestFactory;
 import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-
 import java.util.Set;
 import java.util.stream.Collectors;
 

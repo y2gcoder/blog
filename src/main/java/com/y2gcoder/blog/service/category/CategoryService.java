@@ -27,13 +27,10 @@ public class CategoryService {
 			Category parentCategory = categoryRepository
 					.findById(req.getParentId())
 					.orElseThrow(CategoryNotFoundException::new);
-			Category category = Category.createSubCategory(req.getName(), parentCategory);
+			Category category = new Category(req.getName(), parentCategory);
 			categoryRepository.save(category);
 		} else {
-			List<Category> rootCategories = categoryRepository.findAll()
-					.stream().filter(category -> category.getDepth() == 0).collect(Collectors.toList());
-			int sortOrder = rootCategories.size() > 0 ? rootCategories.get(rootCategories.size() - 1).getSortOrder() + 1 : 0;
-			Category category = Category.createCategory(req.getName(), sortOrder);
+			Category category = new Category(req.getName(), null);
 			categoryRepository.save(category);
 		}
 	}

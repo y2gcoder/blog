@@ -1,9 +1,11 @@
 package com.y2gcoder.blog.init;
 
+import com.y2gcoder.blog.entity.category.Category;
 import com.y2gcoder.blog.entity.user.Role;
 import com.y2gcoder.blog.entity.user.RoleType;
 import com.y2gcoder.blog.entity.user.User;
 import com.y2gcoder.blog.exception.RoleNotFoundException;
+import com.y2gcoder.blog.repository.category.CategoryRepository;
 import com.y2gcoder.blog.repository.user.RoleRepository;
 import com.y2gcoder.blog.repository.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class TestInitDB {
 	@Autowired
 	PasswordEncoder passwordEncoder;
 
+	@Autowired
+	CategoryRepository categoryRepository;
+
 	private String adminEmail = "admin@admin.com";
 	private String user1Email = "user1@user.com";
 	private String user2Email = "user2@user.com";
@@ -34,6 +39,7 @@ public class TestInitDB {
 		initRole();
 		initTestAdmin();
 		initTestUser();
+		initCategory();
 	}
 
 	private void initRole() {
@@ -71,6 +77,12 @@ public class TestInitDB {
 								.build()
 				)
 		);
+	}
+
+	private void initCategory() {
+		Category category1 = new Category("category1", null);
+		Category category2 = new Category("category2", category1);
+		categoryRepository.saveAll(List.of(category1, category2));
 	}
 
 	public String getAdminEmail() {

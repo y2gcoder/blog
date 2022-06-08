@@ -2,7 +2,6 @@ package com.y2gcoder.blog.service.category;
 
 import com.y2gcoder.blog.entity.category.Category;
 import com.y2gcoder.blog.exception.CategoryNotFoundException;
-import com.y2gcoder.blog.factory.dto.CategoryCreateRequestFactory;
 import com.y2gcoder.blog.repository.category.CategoryRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,9 +13,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.y2gcoder.blog.factory.dto.CategoryCreateRequestFactory.createCategoryCreateRequest;
+import static com.y2gcoder.blog.factory.entity.CategoryFactory.createCategoryWithName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -32,7 +31,7 @@ class CategoryServiceTest {
 		//given
 		given(categoryRepository.findAllHierarchical())
 				.willReturn(
-						List.of(Category.createCategory("name1"), Category.createCategory("name2", 1))
+						List.of(createCategoryWithName("name1"), createCategoryWithName("name2"))
 				);
 
 		//when
@@ -61,7 +60,7 @@ class CategoryServiceTest {
 		//given
 		given(
 				categoryRepository.findById(anyLong())
-		).willReturn(Optional.of(Category.createCategory("category")));
+		).willReturn(Optional.of(createCategoryWithName("category")));
 
 		//when
 		categoryService.delete(1L);

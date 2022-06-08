@@ -1,9 +1,11 @@
 package com.y2gcoder.blog;
 
+import com.y2gcoder.blog.entity.category.Category;
 import com.y2gcoder.blog.entity.user.Role;
 import com.y2gcoder.blog.entity.user.RoleType;
 import com.y2gcoder.blog.entity.user.User;
 import com.y2gcoder.blog.exception.RoleNotFoundException;
+import com.y2gcoder.blog.repository.category.CategoryRepository;
 import com.y2gcoder.blog.repository.user.RoleRepository;
 import com.y2gcoder.blog.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,8 @@ public class InitDb {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 
+	private final CategoryRepository categoryRepository;
+
 	@Transactional
 	@EventListener(ApplicationReadyEvent.class)
 	public void init() {
@@ -35,6 +39,7 @@ public class InitDb {
 		initRole();
 		initTestAdmin();
 		initTestUser();
+		initCategory();
 	}
 
 	private void initRole() {
@@ -70,5 +75,16 @@ public class InitDb {
 								.roles(List.of(roleRepository.findByRoleType(RoleType.ROLE_USER).orElseThrow(RoleNotFoundException::new)))
 								.build())
 		);
+	}
+
+	private void initCategory() {
+		Category c1 = categoryRepository.save(new Category("categories", null));
+		Category c2 = categoryRepository.save(new Category("category2", c1));
+		Category c3 = categoryRepository.save(new Category("category3", c1));
+		Category c4 = categoryRepository.save(new Category("category4", c2));
+		Category c5 = categoryRepository.save(new Category("category5", c2));
+		Category c6 = categoryRepository.save(new Category("category6", c4));
+		Category c7 = categoryRepository.save(new Category("category7", c3));
+		Category c8 = categoryRepository.save(new Category("category8", null));
 	}
 }
