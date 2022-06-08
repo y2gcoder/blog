@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface CategoryRepositoryCustom {
 
-	List<CategoryDto> findAllHierarchical();
+	List<Category> findAllHierarchical();
 }

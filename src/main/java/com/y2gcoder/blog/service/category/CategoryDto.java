@@ -1,4 +1,4 @@
-package com.y2gcoder.blog.repository.category;
+package com.y2gcoder.blog.service.category;
 
 import com.y2gcoder.blog.entity.category.Category;
 import lombok.AllArgsConstructor;

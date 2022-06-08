@@ -19,11 +19,11 @@ public class CategoryRepositoryCustomImpl implements CategoryRepositoryCustom {
 
 
 	@Override
-	public List<CategoryDto> findAllHierarchical() {
+	public List<Category> findAllHierarchical() {
 		QCategory parent = new QCategory("parent");
 		QCategory child = new QCategory("child");
 
-		List<Category> categories = queryFactory.selectFrom(parent)
+		return queryFactory.selectFrom(parent)
 				.distinct()
 				.leftJoin(parent.children, child)
 				.fetchJoin()
@@ -33,6 +33,5 @@ public class CategoryRepositoryCustomImpl implements CategoryRepositoryCustom {
 				.orderBy(parent.sortOrder.asc(), child.sortOrder.asc())
 				.fetch();
 
-		return categories.stream().map(CategoryDto::new).collect(Collectors.toList());
 	}
 }

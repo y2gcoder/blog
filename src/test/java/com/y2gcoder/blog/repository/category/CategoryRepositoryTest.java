@@ -104,7 +104,7 @@ class CategoryRepositoryTest {
 		flushAndClear();
 
 		//when
-		List<CategoryDto> result = categoryRepository.findAllHierarchical();
+		List<Category> result = categoryRepository.findAllHierarchical();
 
 		//then
 		assertThat(result.size()).isEqualTo(2);
