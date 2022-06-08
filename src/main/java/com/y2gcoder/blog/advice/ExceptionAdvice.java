@@ -80,6 +80,12 @@ public class ExceptionAdvice {
 		return getFailureResponse(CATEGORY_NOT_FOUND_EXCEPTION);
 	}
 
+	@ExceptionHandler(PostNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ApiResponse postNotFoundException() {
+		return getFailureResponse(POST_NOT_FOUND_EXCEPTION);
+	}
+
 	@ExceptionHandler(RefreshTokenFailureException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ApiResponse refreshTokenFailureException() {
