@@ -35,4 +35,11 @@ public class PostController {
 	public ResponseEntity<ApiResponse> read(@ApiParam(value = "포스트 ID", required = true) @PathVariable Long id) {
 		return ResponseEntity.ok(ApiResponse.success(postService.read(id)));
 	}
+
+	@ApiOperation(value = "포스트 삭제", notes = "포스트를 삭제한다.")
+	@DeleteMapping("/{id}")
+	public ResponseEntity<ApiResponse> delete(@ApiParam(value = "포스트 ID", required = true) @PathVariable Long id) {
+		postService.delete(id);
+		return ResponseEntity.ok(ApiResponse.success());
+	}
 }

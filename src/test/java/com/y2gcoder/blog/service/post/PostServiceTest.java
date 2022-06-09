@@ -95,4 +95,17 @@ class PostServiceTest {
 		assertThatThrownBy(() -> postService.read(1L)).isInstanceOf(PostNotFoundException.class);
 	}
 
+	@Test
+	void deleteTest() {
+		//given
+		Post post = createPost();
+		given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
+
+		//when
+		postService.delete(1L);
+
+		//then
+		verify(postRepository).delete(any());
+	}
+
 }

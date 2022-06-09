@@ -24,8 +24,9 @@ import static com.y2gcoder.blog.factory.dto.PostCreateRequestFactory.createPostC
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -84,5 +85,17 @@ public class PostControllerAdviceTest {
 		mockMvc.perform(
 				get("/api/posts/{id}", 1L)
 		).andExpect(status().isNotFound());
+	}
+
+	@Test
+	void deleteExceptionByPostNotFoundTest() throws Exception {
+		//given
+		doThrow(PostNotFoundException.class).when(postService).delete(anyLong());
+
+		//when, then
+		mockMvc.perform(
+						delete("/api/posts/{id}", 1L)
+				)
+				.andExpect(status().isNotFound());
 	}
 }

@@ -15,8 +15,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static com.y2gcoder.blog.factory.dto.PostCreateRequestFactory.createPostCreateRequestWithUserId;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,5 +56,18 @@ class PostControllerTest {
 		).andExpect(status().isOk());
 
 		verify(postService).read(id);
+	}
+
+	@Test
+	void deleteTest() throws Exception {
+		//given
+		Long id = 1L;
+
+		//when, then
+		mockMvc.perform(
+			delete("/api/posts/{id}", id)
+		).andExpect(status().isOk());
+
+		verify(postService).delete(id);
 	}
 }
