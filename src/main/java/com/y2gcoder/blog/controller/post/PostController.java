@@ -6,14 +6,12 @@ import com.y2gcoder.blog.service.post.PostService;
 import com.y2gcoder.blog.service.post.dto.PostCreateRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -30,5 +28,11 @@ public class PostController {
 	@PostMapping
 	public ResponseEntity<ApiResponse> create(@Valid @RequestBody PostCreateRequest req) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(postService.create(req)));
+	}
+
+	@ApiOperation(value = "포스트 조회", notes = "포스트를 조회한다.")
+	@GetMapping("/{id}")
+	public ResponseEntity<ApiResponse> read(@ApiParam(value = "포스트 ID", required = true) @PathVariable Long id) {
+		return ResponseEntity.ok(ApiResponse.success(postService.read(id)));
 	}
 }

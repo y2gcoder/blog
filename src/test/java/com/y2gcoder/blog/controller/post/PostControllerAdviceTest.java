@@ -1,9 +1,9 @@
 package com.y2gcoder.blog.controller.post;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.y2gcoder.blog.advice.ExceptionAdvice;
 import com.y2gcoder.blog.exception.CategoryNotFoundException;
+import com.y2gcoder.blog.exception.PostNotFoundException;
 import com.y2gcoder.blog.exception.UserNotFoundException;
 import com.y2gcoder.blog.handler.FailResponseHandler;
 import com.y2gcoder.blog.service.post.PostService;
@@ -20,10 +20,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static com.y2gcoder.blog.factory.dto.PostCreateRequestFactory.createPostCreateRequest;
 import static com.y2gcoder.blog.factory.dto.PostCreateRequestFactory.createPostCreateRequestWithUserId;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -72,5 +73,16 @@ public class PostControllerAdviceTest {
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(req))
 		);
+	}
+
+	@Test
+	void readExceptionByPostNotFoundTest() throws Exception {
+		//given
+		given(postService.read(anyLong())).willThrow(PostNotFoundException.class);
+
+		//when, then
+		mockMvc.perform(
+				get("/api/posts/{id}", 1L)
+		).andExpect(status().isNotFound());
 	}
 }

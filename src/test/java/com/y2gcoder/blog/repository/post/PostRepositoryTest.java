@@ -70,6 +70,19 @@ class PostRepositoryTest {
 				.isInstanceOf(PostNotFoundException.class);
 	}
 
+	@Test
+	void findByIdWithUserTest() {
+		//given
+		Post post = postRepository.save(createPost(user, category));
+
+		//when
+		Post foundPost = postRepository.findByIdWithUser(post.getId()).orElseThrow(PostNotFoundException::new);
+
+		//then
+		User foundUser = foundPost.getUser();
+		assertThat(foundUser.getEmail()).isEqualTo(user.getEmail());
+	}
+
 	private void flushAndClear() {
 		em.flush();
 		em.clear();

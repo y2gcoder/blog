@@ -27,9 +27,11 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static com.y2gcoder.blog.factory.dto.PostCreateRequestFactory.createPostCreateRequest;
 import static com.y2gcoder.blog.factory.dto.SignInRequestFactory.createSignInRequest;
+import static com.y2gcoder.blog.factory.entity.PostFactory.createPost;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles(value = "test")
@@ -98,5 +100,16 @@ public class PostControllerIntegrationTest {
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(req))
 		).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void readTest() throws Exception {
+		//given
+		Post post = postRepository.save(createPost(user1, category));
+
+		//when, then
+		mockMvc.perform(
+				get("/api/posts/{id}", post.getId())
+		).andExpect(status().isOk());
 	}
 }
