@@ -9,6 +9,8 @@ import com.y2gcoder.blog.repository.post.PostRepository;
 import com.y2gcoder.blog.repository.user.UserRepository;
 import com.y2gcoder.blog.service.post.dto.PostCreateRequest;
 import com.y2gcoder.blog.service.post.dto.PostDto;
+import com.y2gcoder.blog.service.post.dto.PostUpdateRequest;
+import com.y2gcoder.blog.service.post.dto.PostUpdateResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static com.y2gcoder.blog.factory.dto.PostCreateRequestFactory.createPostCreateRequest;
+import static com.y2gcoder.blog.factory.dto.PostUpdateRequestFactory.createPostUpdateRequest;
 import static com.y2gcoder.blog.factory.entity.CategoryFactory.createCategory;
 import static com.y2gcoder.blog.factory.entity.PostFactory.createPost;
 import static com.y2gcoder.blog.factory.entity.UserFactory.createUser;
@@ -108,4 +111,35 @@ class PostServiceTest {
 		verify(postRepository).delete(any());
 	}
 
+	@Test
+	void updateTest() {
+		//given
+		Post post = createPost();
+		given(postRepository.findById(anyLong())).willReturn(Optional.of(post));
+		PostUpdateRequest req = createPostUpdateRequest(
+				"Updated Title",
+				"Updated Content",
+				"https://images.unsplash.com/photo-1516914357598-8c2b86ae72b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
+		);
+
+		//when
+		PostUpdateResponse result = postService.update(1L, req);
+
+		//then
+		//TODO 어떻게 검증할 것인지 고민
+		assertThat(result.getId()).isEqualTo(post.getId());
+
+	}
+
+	@Test
+	void updateExceptionByPostNotFoundTest() {
+		//given
+		given(postRepository.findById(anyLong())).willReturn(Optional.empty());
+
+		//then
+		assertThatThrownBy(
+				() -> postService.update(1L, createPostUpdateRequest("title", "content", ""))
+		)
+				.isInstanceOf(PostNotFoundException.class);
+	}
 }

@@ -4,6 +4,7 @@ import com.y2gcoder.blog.annotation.AssignUserId;
 import com.y2gcoder.blog.controller.response.ApiResponse;
 import com.y2gcoder.blog.service.post.PostService;
 import com.y2gcoder.blog.service.post.dto.PostCreateRequest;
+import com.y2gcoder.blog.service.post.dto.PostUpdateRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -41,5 +42,14 @@ public class PostController {
 	public ResponseEntity<ApiResponse> delete(@ApiParam(value = "포스트 ID", required = true) @PathVariable Long id) {
 		postService.delete(id);
 		return ResponseEntity.ok(ApiResponse.success());
+	}
+
+	@ApiOperation(value = "포스트 수정", notes = "포스트를 수정한다.")
+	@PutMapping("/{id}")
+	public ResponseEntity<ApiResponse> update(
+			@ApiParam(value = "포스트 ID", required = true) @PathVariable Long id,
+			@Valid @RequestBody PostUpdateRequest req
+			) {
+		return ResponseEntity.ok(ApiResponse.success(postService.update(id, req)));
 	}
 }

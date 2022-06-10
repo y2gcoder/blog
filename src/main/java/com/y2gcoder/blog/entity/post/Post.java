@@ -25,7 +25,7 @@ public class Post extends BaseTimeEntity {
 	@Column(nullable = false)
 	private String content;
 
-	@Column(nullable = false)
+	@Column(nullable = false, length = 1000)
 	private String thumbnailUrl;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -50,6 +50,16 @@ public class Post extends BaseTimeEntity {
 			thumbnailUrl = defaultThumbnailUrl;
 		}
 		return thumbnailUrl;
+	}
+
+	public void update(String title, String content, String thumbnailUrl) {
+		if (title != null && !title.equals("")) {
+			this.title = title;
+		}
+		if (content != null && !content.equals("")) {
+			this.content = content;
+		}
+		this.thumbnailUrl = thumbnailUrl;
 	}
 
 }

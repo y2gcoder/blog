@@ -9,9 +9,7 @@ import com.y2gcoder.blog.exception.UserNotFoundException;
 import com.y2gcoder.blog.repository.category.CategoryRepository;
 import com.y2gcoder.blog.repository.post.PostRepository;
 import com.y2gcoder.blog.repository.user.UserRepository;
-import com.y2gcoder.blog.service.post.dto.PostCreateRequest;
-import com.y2gcoder.blog.service.post.dto.PostCreateResponse;
-import com.y2gcoder.blog.service.post.dto.PostDto;
+import com.y2gcoder.blog.service.post.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -41,5 +39,13 @@ public class PostService {
 	public void delete(Long id) {
 		Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
 		postRepository.delete(post);
+	}
+
+	@Transactional
+	@PreAuthorize("@postGuard.check(#id)")
+	public PostUpdateResponse update(Long id, PostUpdateRequest req) {
+		Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
+		post.update(req.getTitle(), req.getContent(), req.getThumbnailUrl());
+		return new PostUpdateResponse(post.getId());
 	}
 }

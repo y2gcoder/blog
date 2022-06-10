@@ -14,6 +14,7 @@ import com.y2gcoder.blog.service.auth.AuthService;
 import com.y2gcoder.blog.service.auth.dto.SignInResponse;
 import com.y2gcoder.blog.service.post.PostService;
 import com.y2gcoder.blog.service.post.dto.PostCreateRequest;
+import com.y2gcoder.blog.service.post.dto.PostUpdateRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static com.y2gcoder.blog.factory.dto.PostCreateRequestFactory.createPostCreateRequest;
+import static com.y2gcoder.blog.factory.dto.PostUpdateRequestFactory.createPostUpdateRequest;
 import static com.y2gcoder.blog.factory.dto.SignInRequestFactory.createSignInRequest;
 import static com.y2gcoder.blog.factory.entity.PostFactory.createPost;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -175,5 +177,89 @@ public class PostControllerIntegrationTest {
 						delete("/api/posts/{id}", post.getId())
 				)
 				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void updateByResourceOwnerTest() throws Exception {
+		//given
+		SignInResponse signInResponse = authService.signIn(createSignInRequest(user1.getEmail(), initDB.getPassword()));
+		Post post = postRepository.save(createPost(user1, category));
+		String updatedTitle = "updatedTitle";
+		String updatedContent = "updatedContent";
+		String updatedThumbnailUrl = "https://images.unsplash.com/photo-1516914357598-8c2b86ae72b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80";
+		PostUpdateRequest req = createPostUpdateRequest(updatedTitle, updatedContent, updatedThumbnailUrl);
+
+		//when, then
+		mockMvc.perform(
+			put("/api/posts/{id}", post.getId())
+					.header("Authorization", signInResponse.getAccessToken())
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(req))
+		).andExpect(status().isOk());
+
+		Post result = postRepository.findById(post.getId()).orElseThrow(PostNotFoundException::new);
+		assertThat(result.getTitle()).isEqualTo(updatedTitle);
+		assertThat(result.getContent()).isEqualTo(updatedContent);
+		assertThat(result.getThumbnailUrl()).isEqualTo(updatedThumbnailUrl);
+	}
+
+	@Test
+	void updateByAdminTest() throws Exception {
+		//given
+		SignInResponse signInResponse = authService.signIn(createSignInRequest(admin.getEmail(), initDB.getPassword()));
+		Post post = postRepository.save(createPost(user1, category));
+		String updatedTitle = "updatedTitle";
+		String updatedContent = "updatedContent";
+		String updatedThumbnailUrl = "https://images.unsplash.com/photo-1516914357598-8c2b86ae72b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80";
+		PostUpdateRequest req = createPostUpdateRequest(updatedTitle, updatedContent, updatedThumbnailUrl);
+
+		//when, then
+		mockMvc.perform(
+				put("/api/posts/{id}", post.getId())
+						.header("Authorization", signInResponse.getAccessToken())
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(req))
+		).andExpect(status().isOk());
+
+		Post result = postRepository.findById(post.getId()).orElseThrow(PostNotFoundException::new);
+		assertThat(result.getTitle()).isEqualTo(updatedTitle);
+		assertThat(result.getContent()).isEqualTo(updatedContent);
+		assertThat(result.getThumbnailUrl()).isEqualTo(updatedThumbnailUrl);
+	}
+
+	@Test
+	void updateUnauthorizedByNoneTokenTest() throws Exception {
+		//given
+		Post post = postRepository.save(createPost(user1, category));
+		String updatedTitle = "updatedTitle";
+		String updatedContent = "updatedContent";
+		String updatedThumbnailUrl = "https://images.unsplash.com/photo-1516914357598-8c2b86ae72b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80";
+		PostUpdateRequest req = createPostUpdateRequest(updatedTitle, updatedContent, updatedThumbnailUrl);
+
+		//when, then
+		mockMvc.perform(
+				put("/api/posts/{id}", post.getId())
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(req))
+		).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void updateAccessDeniedByNotResourceOwnerTest() throws Exception {
+		//given
+		SignInResponse signInResponse = authService.signIn(createSignInRequest(user2.getEmail(), initDB.getPassword()));
+		Post post = postRepository.save(createPost(user1, category));
+		String updatedTitle = "updatedTitle";
+		String updatedContent = "updatedContent";
+		String updatedThumbnailUrl = "https://images.unsplash.com/photo-1516914357598-8c2b86ae72b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80";
+		PostUpdateRequest req = createPostUpdateRequest(updatedTitle, updatedContent, updatedThumbnailUrl);
+
+		//when, then
+		mockMvc.perform(
+				put("/api/posts/{id}", post.getId())
+						.header("Authorization", signInResponse.getAccessToken())
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(req))
+		).andExpect(status().isForbidden());
 	}
 }

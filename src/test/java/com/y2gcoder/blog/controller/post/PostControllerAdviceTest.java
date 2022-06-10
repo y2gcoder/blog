@@ -1,5 +1,6 @@
 package com.y2gcoder.blog.controller.post;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.y2gcoder.blog.advice.ExceptionAdvice;
 import com.y2gcoder.blog.exception.CategoryNotFoundException;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static com.y2gcoder.blog.factory.dto.PostCreateRequestFactory.createPostCreateRequestWithUserId;
+import static com.y2gcoder.blog.factory.dto.PostUpdateRequestFactory.createPostUpdateRequest;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -97,5 +99,18 @@ public class PostControllerAdviceTest {
 						delete("/api/posts/{id}", 1L)
 				)
 				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void updateExceptionByPostNotFoundTest() throws Exception {
+		//given
+		given(postService.update(anyLong(), any())).willThrow(PostNotFoundException.class);
+
+		//when, then
+		mockMvc.perform(
+				put("/api/posts/{id}", 1L)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(new ObjectMapper().writeValueAsString(createPostUpdateRequest("title", "content", "")))
+		).andExpect(status().isNotFound());
 	}
 }

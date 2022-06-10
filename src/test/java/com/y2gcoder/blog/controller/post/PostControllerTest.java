@@ -1,8 +1,10 @@
 package com.y2gcoder.blog.controller.post;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.y2gcoder.blog.service.post.PostService;
 import com.y2gcoder.blog.service.post.dto.PostCreateRequest;
+import com.y2gcoder.blog.service.post.dto.PostUpdateRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +16,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static com.y2gcoder.blog.factory.dto.PostCreateRequestFactory.createPostCreateRequestWithUserId;
+import static com.y2gcoder.blog.factory.dto.PostUpdateRequestFactory.createPostUpdateRequest;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -33,6 +38,7 @@ class PostControllerTest {
 
 	@Test
 	void createTest() throws Exception {
+		//given
 		PostCreateRequest req = createPostCreateRequestWithUserId(null);
 
 		//when, then
@@ -69,5 +75,24 @@ class PostControllerTest {
 		).andExpect(status().isOk());
 
 		verify(postService).delete(id);
+	}
+
+	@Test
+	void updateTest() throws Exception {
+		//given
+		PostUpdateRequest req = createPostUpdateRequest(
+				"Updated Title",
+				"Updated Content",
+				"https://images.unsplash.com/photo-1516914357598-8c2b86ae72b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
+		);
+
+		//when, then
+		mockMvc.perform(
+			put("/api/posts/{id}", 1L)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(objectMapper.writeValueAsString(req))
+		).andExpect(status().isOk());
+
+		verify(postService).update(anyLong(), eq(req));
 	}
 }
