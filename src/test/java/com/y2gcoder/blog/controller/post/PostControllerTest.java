@@ -2,6 +2,7 @@ package com.y2gcoder.blog.controller.post;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.y2gcoder.blog.repository.post.dto.PostReadCondition;
 import com.y2gcoder.blog.service.post.PostService;
 import com.y2gcoder.blog.service.post.dto.PostCreateRequest;
 import com.y2gcoder.blog.service.post.dto.PostUpdateRequest;
@@ -15,7 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.List;
+
 import static com.y2gcoder.blog.factory.dto.PostCreateRequestFactory.createPostCreateRequestWithUserId;
+import static com.y2gcoder.blog.factory.dto.PostReadConditionFactory.createPostReadCondition;
 import static com.y2gcoder.blog.factory.dto.PostUpdateRequestFactory.createPostUpdateRequest;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -94,5 +98,25 @@ class PostControllerTest {
 		).andExpect(status().isOk());
 
 		verify(postService).update(anyLong(), eq(req));
+	}
+
+	@Test
+	void readAllTest() throws Exception {
+		//given
+		PostReadCondition condition = createPostReadCondition(1, null, List.of(1L, 2L));
+
+		//when, then
+		mockMvc.perform(
+			get("/api/posts")
+					.param("size", String.valueOf(condition.getSize()))
+					.param(
+							"categoryIds",
+							String.valueOf(condition.getCategoryIds().get(0)),
+							String.valueOf(condition.getCategoryIds().get(1))
+					)
+		).andExpect(status().isOk());
+
+		verify(postService).readAll(condition);
+
 	}
 }

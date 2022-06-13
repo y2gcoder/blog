@@ -9,6 +9,7 @@ import com.y2gcoder.blog.exception.UserNotFoundException;
 import com.y2gcoder.blog.init.TestInitDB;
 import com.y2gcoder.blog.repository.category.CategoryRepository;
 import com.y2gcoder.blog.repository.post.PostRepository;
+import com.y2gcoder.blog.repository.post.dto.PostReadCondition;
 import com.y2gcoder.blog.repository.user.UserRepository;
 import com.y2gcoder.blog.service.auth.AuthService;
 import com.y2gcoder.blog.service.auth.dto.SignInResponse;
@@ -28,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import static com.y2gcoder.blog.factory.dto.PostCreateRequestFactory.createPostCreateRequest;
+import static com.y2gcoder.blog.factory.dto.PostReadConditionFactory.createPostReadCondition;
 import static com.y2gcoder.blog.factory.dto.PostUpdateRequestFactory.createPostUpdateRequest;
 import static com.y2gcoder.blog.factory.dto.SignInRequestFactory.createSignInRequest;
 import static com.y2gcoder.blog.factory.entity.PostFactory.createPost;
@@ -261,5 +263,18 @@ public class PostControllerIntegrationTest {
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(req))
 		).andExpect(status().isForbidden());
+	}
+
+	@Test
+	void readAllTest() throws Exception {
+		//given
+		PostReadCondition condition = createPostReadCondition(1, null);
+
+		//when, then
+		mockMvc.perform(
+				get("/api/posts")
+						.param("size", String.valueOf(condition.getSize()))
+						.param("categoryIds", String.valueOf(1), String.valueOf(2))
+		).andExpect(status().isOk());
 	}
 }

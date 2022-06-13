@@ -1,11 +1,13 @@
 package com.y2gcoder.blog;
 
 import com.y2gcoder.blog.entity.category.Category;
+import com.y2gcoder.blog.entity.post.Post;
 import com.y2gcoder.blog.entity.user.Role;
 import com.y2gcoder.blog.entity.user.RoleType;
 import com.y2gcoder.blog.entity.user.User;
 import com.y2gcoder.blog.exception.RoleNotFoundException;
 import com.y2gcoder.blog.repository.category.CategoryRepository;
+import com.y2gcoder.blog.repository.post.PostRepository;
 import com.y2gcoder.blog.repository.user.RoleRepository;
 import com.y2gcoder.blog.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -32,14 +35,18 @@ public class InitDb {
 
 	private final CategoryRepository categoryRepository;
 
+	private final PostRepository postRepository;
+
 	@Transactional
 	@EventListener(ApplicationReadyEvent.class)
 	public void init() {
-		log.info("init database");
+
 		initRole();
 		initTestAdmin();
 		initTestUser();
 		initCategory();
+		initPost();
+		log.info("init database");
 	}
 
 	private void initRole() {
@@ -86,5 +93,15 @@ public class InitDb {
 		Category c6 = categoryRepository.save(new Category("category6", c4));
 		Category c7 = categoryRepository.save(new Category("category7", c3));
 		Category c8 = categoryRepository.save(new Category("category8", null));
+	}
+
+	private void initPost() {
+		User user = userRepository.findAll().get(0);
+		Category category = categoryRepository.findAll().get(0);
+		IntStream.range(0, 100000)
+				.forEach(i -> postRepository.save(
+						new Post("title" + i, "content" + i, null, user, category)
+				));
+
 	}
 }

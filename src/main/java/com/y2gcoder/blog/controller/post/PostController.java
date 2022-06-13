@@ -2,6 +2,7 @@ package com.y2gcoder.blog.controller.post;
 
 import com.y2gcoder.blog.annotation.AssignUserId;
 import com.y2gcoder.blog.controller.response.ApiResponse;
+import com.y2gcoder.blog.repository.post.dto.PostReadCondition;
 import com.y2gcoder.blog.service.post.PostService;
 import com.y2gcoder.blog.service.post.dto.PostCreateRequest;
 import com.y2gcoder.blog.service.post.dto.PostUpdateRequest;
@@ -51,5 +52,11 @@ public class PostController {
 			@Valid @RequestBody PostUpdateRequest req
 			) {
 		return ResponseEntity.ok(ApiResponse.success(postService.update(id, req)));
+	}
+
+	@ApiOperation(value = "포스트 목록 조회", notes = "포스트 목록을 조회한다.")
+	@GetMapping
+	public ResponseEntity<ApiResponse> readAll(@Valid PostReadCondition condition) {
+		return ResponseEntity.ok(ApiResponse.success(postService.readAll(condition)));
 	}
 }

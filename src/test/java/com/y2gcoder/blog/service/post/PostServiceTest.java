@@ -6,20 +6,23 @@ import com.y2gcoder.blog.exception.PostNotFoundException;
 import com.y2gcoder.blog.exception.UserNotFoundException;
 import com.y2gcoder.blog.repository.category.CategoryRepository;
 import com.y2gcoder.blog.repository.post.PostRepository;
+import com.y2gcoder.blog.repository.post.dto.PostSimpleDto;
 import com.y2gcoder.blog.repository.user.UserRepository;
-import com.y2gcoder.blog.service.post.dto.PostCreateRequest;
-import com.y2gcoder.blog.service.post.dto.PostDto;
-import com.y2gcoder.blog.service.post.dto.PostUpdateRequest;
-import com.y2gcoder.blog.service.post.dto.PostUpdateResponse;
+import com.y2gcoder.blog.service.post.dto.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import static com.y2gcoder.blog.factory.dto.PostCreateRequestFactory.createPostCreateRequest;
+import static com.y2gcoder.blog.factory.dto.PostReadConditionFactory.createPostReadCondition;
 import static com.y2gcoder.blog.factory.dto.PostUpdateRequestFactory.createPostUpdateRequest;
 import static com.y2gcoder.blog.factory.entity.CategoryFactory.createCategory;
 import static com.y2gcoder.blog.factory.entity.PostFactory.createPost;
@@ -141,5 +144,17 @@ class PostServiceTest {
 				() -> postService.update(1L, createPostUpdateRequest("title", "content", ""))
 		)
 				.isInstanceOf(PostNotFoundException.class);
+	}
+
+	@Test
+	void readAllTest() {
+		//given
+		given(postRepository.findAllByCondition(any())).willReturn(new SliceImpl<>(Collections.emptyList()));
+
+		//when
+		PostListDto postListDto = postService.readAll(createPostReadCondition(1, null));
+
+		//then
+		assertThat(postListDto.getContent().size()).isZero();
 	}
 }

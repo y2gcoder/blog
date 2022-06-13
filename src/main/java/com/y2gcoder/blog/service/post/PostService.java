@@ -8,6 +8,7 @@ import com.y2gcoder.blog.exception.PostNotFoundException;
 import com.y2gcoder.blog.exception.UserNotFoundException;
 import com.y2gcoder.blog.repository.category.CategoryRepository;
 import com.y2gcoder.blog.repository.post.PostRepository;
+import com.y2gcoder.blog.repository.post.dto.PostReadCondition;
 import com.y2gcoder.blog.repository.user.UserRepository;
 import com.y2gcoder.blog.service.post.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +48,9 @@ public class PostService {
 		Post post = postRepository.findById(id).orElseThrow(PostNotFoundException::new);
 		post.update(req.getTitle(), req.getContent(), req.getThumbnailUrl());
 		return new PostUpdateResponse(post.getId());
+	}
+
+	public PostListDto readAll(PostReadCondition condition) {
+		return PostListDto.toDto(postRepository.findAllByCondition(condition));
 	}
 }

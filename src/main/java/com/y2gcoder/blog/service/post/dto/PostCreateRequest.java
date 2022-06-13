@@ -19,11 +19,11 @@ import javax.validation.constraints.*;
 public class PostCreateRequest {
 
 	@ApiModelProperty(value = "포스트 제목", notes = "포스트 제목을 입력해주세요.", required = true, example = "my title")
-	@NotBlank(message = "포스트 제목을 입력해주세요.")
+	@NotBlank(message = "{postCreateRequest.title.notBlank}")
 	private String title;
 
 	@ApiModelProperty(value = "포스트 본문", notes = "포스트 본문을 입력해주세요.", required = true, example = "my content")
-	@NotBlank(message = "포스트 본문을 입력해주세요.")
+	@NotBlank(message = "{postCreateRequest.content.notBlank}")
 	private String content;
 
 	@ApiModelProperty(hidden = true)
@@ -31,12 +31,12 @@ public class PostCreateRequest {
 	private Long userId;
 
 	@ApiModelProperty(value = "카테고리 아이디", notes = "카테고리 아이디를 입력해주세요.", required = true, example = "3")
-	@NotNull(message = "카테고리 아이디를 입력해주세요.")
-	@PositiveOrZero(message = "올바른 카테고리 아이디를 입력해주세요.")
+	@NotNull(message = "{postCreateRequest.categoryId.notNull}")
+	@PositiveOrZero(message = "{postCreateRequest.categoryId.positiveOrZero}")
 	private Long categoryId;
 
 	@ApiModelProperty(value = "썸네일 URL", notes = "썸네일 URL을 입력해주세요.")
-	@URL(message = "올바른 썸네일 URL을 입력해주세요.")
+	@URL(message = "{postCreateRequest.thumbnailUrl.url}")
 	private String thumbnailUrl;
 
 	public static Post toEntity(PostCreateRequest req, User user, Category category) {
